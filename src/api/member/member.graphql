@@ -81,6 +81,7 @@ input MemberInput {
   Email address for a subscriber.
   """
   email: String
+  recipientId: String
 }
 
 input MemberUpdateInput {
