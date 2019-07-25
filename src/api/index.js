@@ -1,4 +1,5 @@
 import md5 from "md5";
+<<<<<<< HEAD
 import dotenv from "dotenv";
 import NodeCache from "node-cache";
 import member from "./member";
@@ -26,6 +27,11 @@ const dataSources = () => ({
     myCache
   )
 });
+=======
+import member from "./member";
+import interest from "./interest";
+import dataSources from "./datasources";
+>>>>>>> upstream/master
 
 export default {
   typeDefs: [member.typeDefs, interest.typeDefs],
