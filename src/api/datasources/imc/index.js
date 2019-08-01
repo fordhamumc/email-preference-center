@@ -1,14 +1,22 @@
 import { RESTDataSource } from "apollo-datasource-rest";
 import querystring from "querystring";
 import to from "../../../utils/to";
-import memberReducer from "./imc.member.reducer";
+import memberReducer, { memberFieldsReducer } from "./imc.member.reducer";
+import NodeCache from "node-cache";
 
 export default class ImcAPI extends RESTDataSource {
-  constructor(CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, pod, cache) {
+  constructor({
+    id,
+    secret,
+    refreshToken,
+    databaseId,
+    pod,
+    cache = new NodeCache()
+  }) {
     super();
     this._cache = cache;
 
-    if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+    if (!id || !secret || !refreshToken) {
       throw new Error("missing credentials");
     }
 
@@ -22,10 +30,10 @@ export default class ImcAPI extends RESTDataSource {
     }
 
     this.baseURL = `https://api${pod}.ibmmarketingcloud.com/`;
-    this.CLIENT_ID = CLIENT_ID;
-    this.CLIENT_SECRET = CLIENT_SECRET;
-    this.REFRESH_TOKEN = REFRESH_TOKEN;
-    this.DATABASE_ID = 5200369;
+    this.CLIENT_ID = id;
+    this.CLIENT_SECRET = secret;
+    this.REFRESH_TOKEN = refreshToken;
+    this.DATABASE_ID = databaseId;
     this.getOAuthAccessToken();
   }
 
@@ -38,9 +46,7 @@ export default class ImcAPI extends RESTDataSource {
 
   async getOAuthAccessToken() {
     let cachedToken;
-    if (this._cache !== null) {
-      cachedToken = this._cache.get(`${this.CLIENT_ID}::token`);
-    }
+    cachedToken = this._cache.get(`${this.CLIENT_ID}::token`);
     return cachedToken || (await this.refreshOAuthAccessToken());
   }
 
@@ -63,13 +69,63 @@ export default class ImcAPI extends RESTDataSource {
       res.access_token,
       res.expires_in
     );
-    return res.accessToken;
+    return res.access_token;
   }
 
-  async getMemberById(id, databaseId = this.DATABASE_ID) {
+  async getMember({ recipientId: id }, databaseId = this.DATABASE_ID) {
+    if (!id) return null;
     const member = await this.get(
       `rest/databases/${databaseId}/contacts/${id}`
     );
-    return memberReducer(id, member.data);
+    return memberReducer({ id, ...member.data });
+  }
+
+  async patchMember(
+    { recipientId: id, status, optOuts },
+    databaseId = this.DATABASE_ID
+  ) {
+    if (!id) return null;
+    const payload = { customFields: [] };
+    if (status) {
+      payload.customFields.push({
+        name: "Fordham Opt Out",
+        value: ["unsubscribed", "cleaned"].includes(status) ? "Yes" : "None"
+      });
+    }
+    if (optOuts) {
+      payload.customFields = [
+        ...payload.customFields,
+        ...(await this.transformOutOuts({ id, optOuts, databaseId }))
+      ];
+    }
+    const member = this.patch(
+      `rest/databases/${databaseId}/contacts/${id}`,
+      payload
+    ).then(async _ => await this.getMember({ recipientId: id }, databaseId));
+    return member;
+  }
+
+  async unsubscribeMember({ recipientId }, databaseId = this.DATABASE_ID) {
+    return await this.patchMember(
+      { recipientId, status: "unsubscribed" },
+      databaseId
+    );
+  }
+
+  async getOptOutCategories(id, databaseId = this.DATABASE_ID) {
+    const member = await this.get(
+      `rest/databases/${databaseId}/contacts/${id}`
+    );
+    return Object.keys(memberFieldsReducer(member.data).optOuts);
+  }
+
+  async transformOutOuts({ id, optOuts = [], databaseId }) {
+    const optOutCategories = await this.getOptOutCategories(id, databaseId);
+    return optOuts
+      .filter(({ name }) => optOutCategories.includes(name))
+      .map(optOut => ({
+        name: `Opt Out ${optOut.name}`,
+        value: optOut.optOut ? "Yes" : "No"
+      }));
   }
 }

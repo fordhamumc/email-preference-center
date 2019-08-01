@@ -1,8 +1,22 @@
+import MailchimpAPI from "..";
 import memberReducer from "../mailchimp.member.reducer";
 
+const MOCK_API_KEY = "ABC123-us1";
+const MOCK_LIST_ID = "1a23";
+const MOCK_OPTOUT_CATEGORY = "1234";
+
+const ds = new MailchimpAPI({
+  key: MOCK_API_KEY,
+  listId: MOCK_LIST_ID,
+  optOutCategory: MOCK_OPTOUT_CATEGORY
+});
+
+ds.get = jest.fn();
+
 describe("[MailchimpAPI.memberReducer]", () => {
-  it("transforms member", () => {
-    expect(memberReducer(mockMemberResponse)).toEqual(mockMember);
+  it("transforms member", async () => {
+    ds.get.mockReturnValue(mockOptOutCategoriesResponse);
+    expect(await memberReducer(mockMemberResponse, ds)).toEqual(mockMember);
   });
 });
 
@@ -16,7 +30,7 @@ const mockMember = {
   lastName: "Foley",
   fidn: "P001234",
   roles: ["DOG", "PET", "ANIMAL"],
-  interests: ["fjkd453", "e392hk", "skd9h"],
+  optOuts: ["Test Category", "Test Category 3", "Test Category 4"],
   exclusions: ["NON", "EER"],
   recipientId: "ajs94330fs"
 };
@@ -39,11 +53,32 @@ const mockMemberResponse = {
   },
   interests: {
     "854dk03": false,
-    cjijfkd: false,
     fjkd453: true,
-    "77ccs7s": false,
     e392hk: true,
-    "8ksjhd": false,
     skd9h: true
   }
+};
+const mockOptOutCategoriesResponse = {
+  interests: [
+    {
+      id: "fjkd453",
+      categoryId: "44rr43",
+      name: "Test Category"
+    },
+    {
+      id: "854dk03",
+      categoryId: "44rr43",
+      name: "Test Category 2"
+    },
+    {
+      id: "e392hk",
+      categoryId: "44rr43",
+      name: "Test Category 3"
+    },
+    {
+      id: "skd9h",
+      categoryId: "44rr43",
+      name: "Test Category 4"
+    }
+  ]
 };

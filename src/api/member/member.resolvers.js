@@ -1,57 +1,46 @@
 import to from "../../utils/to";
+import merge from "../../utils/merge";
 
-async function member(
-  _,
-  { input: { id, email } },
-  { dataSources: { mailchimpAPI }, helpers: { md5 } }
+async function member(_, { input }, ctx) {
+  return loopDataSources("getMember", input, ctx);
+}
+
+async function updateMember(_, { input }, ctx) {
+  return loopDataSources("patchMember", input, ctx);
+}
+
+async function unsubscribeMember(_, { input }, ctx) {
+  return loopDataSources("unsubscribeMember", input, ctx);
+}
+
+async function loopDataSources(
+  fnName,
+  input,
+  { dataSources, helpers: { md5 } }
 ) {
-  id = getId(id, email, md5);
-  const [err, member] = await to(mailchimpAPI.getMemberById(id));
-  if (!member) {
+  input.id = getId(input, md5);
+  const sources = Promise.all(
+    Object.keys(dataSources).map(async source => {
+      return (await to(dataSources[source][fnName](input)))[1];
+    })
+  );
+  const member = merge(...(await sources));
+  if (Object.keys(member).length === 0) {
     throw new Error("Member does not exist");
   }
   return member;
 }
 
-async function updateMember(
-  _,
-  { input: { id, ...input } },
-  { dataSources: { mailchimpAPI } }
-) {
-  const [err, member] = await to(mailchimpAPI.patchMember(id, input));
-  return member;
-}
-
-async function unsubscribeMember(
-  _,
-  { input: { id, email } },
-  { dataSources: { mailchimpAPI }, helpers: { md5 } }
-) {
-  id = getId(id, email, md5);
-  const [err, member] = await to(mailchimpAPI.unsubscribeMember(id));
-  return member;
-}
-
-async function getMemberInterests(
-  { interests },
-  _,
-  { dataSources: { mailchimpAPI } }
-) {
-  return interests.map(id => mailchimpAPI.getInterestById(id));
-}
-
-function getId(id, email, hash) {
-  if (!id && !email) {
-    throw new Error("Specify id or email");
+function getId(input, hash) {
+  let id = input.id;
+  if (!Object.keys(input).length) {
+    throw new Error("Input field required.");
   }
-  if (!id) {
-    id = hash(email.toLowerCase());
+  if (!input.id && input.email) {
+    id = hash(input.email.toLowerCase());
   }
   return id;
 }
-
-// export getId function for testing
-export const ___GET_ID = getId;
 
 export default {
   Query: {
@@ -60,8 +49,5 @@ export default {
   Mutation: {
     updateMember,
     unsubscribeMember
-  },
-  Member: {
-    interests: getMemberInterests
   }
 };

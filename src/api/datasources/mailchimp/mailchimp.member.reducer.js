@@ -5,7 +5,13 @@ function fieldToArray(field) {
     .filter(Boolean);
 }
 
-export default function memberReducer(member) {
+async function optOutsReducer(interests, api) {
+  let optOuts = Object.keys(interests).filter(key => interests[key]);
+  optOuts = await Promise.all(optOuts.map(id => api.getOptOutById(id)));
+  return optOuts.filter(Boolean);
+}
+
+export default async function memberReducer(member, api) {
   const {
     id,
     email_address: email,
@@ -23,7 +29,7 @@ export default function memberReducer(member) {
     lastName: LNAME,
     fidn: FIDN,
     roles: fieldToArray(ROLE),
-    interests: Object.keys(interests).filter(key => interests[key]),
+    optOuts: await optOutsReducer(interests, api),
     exclusions: fieldToArray(EXCLUSION),
     recipientId: IMCID
   };

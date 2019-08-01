@@ -1,11 +1,10 @@
-import resolvers, { ___GET_ID } from "../member.resolvers";
+import resolvers from "../member.resolvers";
 import md5 from "md5";
 
 const mockContext = {
   dataSources: {
     mailchimpAPI: {
-      getInterestById: jest.fn(),
-      getMemberById: jest.fn(),
+      getMember: jest.fn(),
       patchMember: jest.fn(),
       unsubscribeMember: jest.fn()
     }
@@ -15,38 +14,11 @@ const mockContext = {
   }
 };
 
-describe("[Member.interests]", () => {
-  it("looks up interests from mailchimp api", async () => {
-    const { getInterestById } = mockContext.dataSources.mailchimpAPI;
-    getInterestById
-      .mockReturnValueOnce({
-        id: "9ab9"
-      })
-      .mockReturnValueOnce({
-        id: "c8shd"
-      });
-
-    const res = await resolvers.Member.interests(
-      { interests: ["9ab9", "c8shd"] },
-      null,
-      mockContext
-    );
-    expect(res).toEqual([
-      {
-        id: "9ab9"
-      },
-      {
-        id: "c8shd"
-      }
-    ]);
-  });
-});
-
 describe("[Query.member]", () => {
-  const { getMemberById } = mockContext.dataSources.mailchimpAPI;
+  const { getMember } = mockContext.dataSources.mailchimpAPI;
 
   it("converts email to id", async () => {
-    getMemberById.mockReturnValueOnce({
+    getMember.mockReturnValueOnce({
       id: "b642b4217b34b1e8d3bd915fc65c4452"
     });
 
@@ -55,11 +27,14 @@ describe("[Query.member]", () => {
       { input: { email: "test@test.com" } },
       mockContext
     );
-    expect(getMemberById).toBeCalledWith("b642b4217b34b1e8d3bd915fc65c4452");
+    expect(getMember).toBeCalledWith({
+      email: "test@test.com",
+      id: "b642b4217b34b1e8d3bd915fc65c4452"
+    });
   });
 
   it("calls lookup from mailchimp api", async () => {
-    getMemberById.mockReturnValueOnce({
+    getMember.mockReturnValueOnce({
       id: "b642b4217b34b1e8d3bd915fc65c4452"
     });
 
@@ -73,12 +48,14 @@ describe("[Query.member]", () => {
     });
   });
 
-  it("throws error when neither id or email is passed", async () => {
-    const res = () => ___GET_ID(null, null, md5);
-    expect(res).toThrow(Error);
+  it("throws error when input is empty", async () => {
+    const res = async () =>
+      await resolvers.Query.member(null, { input: {} }, mockContext);
+    expect(res()).rejects.toThrow(Error);
   });
 
   it("throws error when member is not found", async () => {
+    getMember.mockReturnValueOnce(null);
     const res = async () =>
       await resolvers.Query.member(
         null,
@@ -100,67 +77,32 @@ describe("[Mutation.updateMember]", () => {
       status: "unsubscribed"
     });
 
-    const res = await resolvers.Mutation.updateMember(
-      null,
-      {
-        input: {
-          id: "b642b4217b34b1e8d3bd915fc65c4452",
-          email: "test2@test.com",
-          interests: [
-            { id: "9ab9", subscribed: true },
-            { id: "abcd", subscribed: false }
-          ],
-          status: "unsubscribed"
-        }
-      },
-      mockContext
-    );
-    expect(patchMember).toBeCalledWith("b642b4217b34b1e8d3bd915fc65c4452", {
+    const input = {
+      id: "b642b4217b34b1e8d3bd915fc65c4452",
       email: "test2@test.com",
       interests: [
         { id: "9ab9", subscribed: true },
         { id: "abcd", subscribed: false }
       ],
       status: "unsubscribed"
-    });
-  });
+    };
 
-  it("payload does not include email_address", async () => {
-    patchMember.mockReturnValueOnce({
-      id: "b642b4217b34b1e8d3bd915fc65c4452",
-      email: "test@test.com",
-      interests: ["9ab9"],
-      status: "subscribed"
-    });
-
-    await resolvers.Mutation.updateMember(
+    const res = await resolvers.Mutation.updateMember(
       null,
-      {
-        input: {
-          id: "b642b4217b34b1e8d3bd915fc65c4452",
-          interests: [
-            { id: "9ab9", subscribed: true },
-            { id: "abcd", subscribed: false }
-          ],
-          status: "subscribed"
-        }
-      },
+      { input },
       mockContext
     );
-
-    expect(patchMember).toBeCalledWith("b642b4217b34b1e8d3bd915fc65c4452", {
-      interests: [
-        { id: "9ab9", subscribed: true },
-        { id: "abcd", subscribed: false }
-      ],
-      status: "subscribed"
-    });
+    expect(patchMember).toBeCalledWith(input);
   });
 });
 
 describe("[Mutation.unsubscribeMember]", () => {
   const { unsubscribeMember } = mockContext.dataSources.mailchimpAPI;
 
+  const input = {
+    id: "b642b4217b34b1e8d3bd915fc65c4452",
+    status: "unsubscribed"
+  };
   it("converts email to id", async () => {
     unsubscribeMember.mockReturnValueOnce({
       id: "b642b4217b34b1e8d3bd915fc65c4452",
@@ -172,8 +114,9 @@ describe("[Mutation.unsubscribeMember]", () => {
       { input: { email: "test@test.com" } },
       mockContext
     );
-    expect(unsubscribeMember).toBeCalledWith(
-      "b642b4217b34b1e8d3bd915fc65c4452"
-    );
+    expect(unsubscribeMember).toBeCalledWith({
+      email: "test@test.com",
+      id: md5("test@test.com")
+    });
   });
 });

@@ -1,29 +1,35 @@
 import md5 from "md5";
-export default function memberReducer(id, member) {
-  const { email, emailType, customFields } = member;
-  const fields = customFields.reduce(
+
+export function memberFieldsReducer({ customFields }) {
+  return customFields.reduce(
     (acc, i) => {
       if (i.name.startsWith("Opt Out")) {
-        acc.interests[i.name.substr(8)] = i.value;
+        acc.optOuts[i.name.substr(8)] = i.value;
         return acc;
       } else {
         return { ...acc, [i.name]: i.value };
       }
     },
-    { interests: {} }
+    { optOuts: {} }
   );
+}
+
+export default function memberReducer(member) {
+  const { id, email, emailType } = member;
+  const fields = memberFieldsReducer(member);
 
   return {
     id: md5(email),
     email,
-    emailType,
-    status: fields["Fordham Opt Out"] === "Yes" ? "Unsubscribed" : "Subscribed",
+    emailType: emailType.toLowerCase(),
+    status: fields["Fordham Opt Out"] === "Yes" ? "unsubscribed" : "subscribed",
     firstName: fields["First Name"],
     lastName: fields["Last Name"],
     fidn: fields["Fordham ID"],
     roles: fields["Role"].split(", "),
-    interests: Object.keys(fields.interests).filter(
-      key => fields.interests[key]
+    exclusions: [],
+    optOuts: Object.keys(fields.optOuts).filter(
+      key => fields.optOuts[key] === "Yes"
     ),
     recipientId: id
   };

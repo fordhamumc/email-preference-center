@@ -37,9 +37,9 @@ type Member {
   """
   lastName: String
   """
-  A list of interests/groups for the subscriber
+  A list of opt outs
   """
-  interests: [Interest]
+  optOuts: [String]
   """
   Subscriber's Fordham ID
   """
@@ -58,15 +58,15 @@ type Member {
   recipientId: String
 }
 
-input InterestUpdateInput {
+input OptOutUpdateInput {
   """
-  ID of the interest/group
+  Name of the opt out category
   """
-  id: ID!
+  name: String!
   """
-  Should the subscriber be added or removed from the interest/group
+  Should the subscriber be added or removed from the opt out category
   """
-  subscribed: Boolean!
+  optOut: Boolean!
 }
 
 """
@@ -81,6 +81,9 @@ input MemberInput {
   Email address for a subscriber.
   """
   email: String
+  """
+  IBM Marketing Cloud/FMP Recipient ID
+  """
   recipientId: String
 }
 
@@ -88,7 +91,11 @@ input MemberUpdateInput {
   """
   The MD5 hash of the lowercase version of the list member’s email address.
   """
-  id: ID!
+  id: ID
+  """
+  IBM Marketing Cloud/FMP Recipient ID
+  """
+  recipientId: String
   """
   The updated email address for the subscriber
   """
@@ -98,9 +105,9 @@ input MemberUpdateInput {
   """
   status: StatusType
   """
-  A list of interests/groups to add/remove
+  A list of opt outs to add/remove
   """
-  interests: [InterestUpdateInput]
+  optOuts: [OptOutUpdateInput]
 }
 
 type Query {
