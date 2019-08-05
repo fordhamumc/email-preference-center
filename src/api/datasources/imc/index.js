@@ -42,6 +42,7 @@ export default class ImcAPI extends RESTDataSource {
       const accessToken = await this.getOAuthAccessToken();
       request.headers.set("Authorization", `Bearer ${accessToken}`);
     }
+    return request;
   }
 
   async getOAuthAccessToken() {
@@ -95,7 +96,11 @@ export default class ImcAPI extends RESTDataSource {
     if (optOuts) {
       payload.customFields = [
         ...payload.customFields,
-        ...(await this.transformOutOuts({ id, optOuts, databaseId }))
+        ...(await this.transformOutOutsToCustomFields({
+          recipientId: id,
+          optOuts,
+          databaseId
+        }))
       ];
     }
     const member = this.patch(
@@ -119,7 +124,11 @@ export default class ImcAPI extends RESTDataSource {
     return Object.keys(memberFieldsReducer(member.data).optOuts);
   }
 
-  async transformOutOuts({ id, optOuts = [], databaseId }) {
+  async transformOutOutsToCustomFields({
+    recipientId: id,
+    optOuts = [],
+    databaseId
+  }) {
     const optOutCategories = await this.getOptOutCategories(id, databaseId);
     return optOuts
       .filter(({ name }) => optOutCategories.includes(name))
