@@ -31,6 +31,7 @@ export default class MailchimpAPI extends RESTDataSource {
     if (!request.params.has("fields")) {
       request.params.set("exclude_fields", "_links");
     }
+    return request;
   }
 
   async queuedFetch(method, path, body, init) {
@@ -71,13 +72,10 @@ export default class MailchimpAPI extends RESTDataSource {
     payload.interests = {};
     return Promise.all(
       optOuts.map(async optOut => {
-        const optOutId = await this.transformOptOut(
-          optOut.name,
-          "name",
-          "id",
+        const optOutId = await this.getOptOutIdByName(optOut.name, {
           optOutCategory,
           listId
-        );
+        });
         if (optOutId) {
           payload.interests[optOutId] = optOut.optOut;
         }
@@ -102,7 +100,20 @@ export default class MailchimpAPI extends RESTDataSource {
     optOutCategory = this.OPT_OUT_CATEGORY,
     listId = this.LIST_ID
   ) {
-    return this.transformOptOut(id, "id", "name", optOutCategory, listId);
+    return this.transformOptOut(id, { optOutCategory, listId });
+  }
+
+  async getOptOutIdByName(
+    name,
+    optOutCategory = this.OPT_OUT_CATEGORY,
+    listId = this.LIST_ID
+  ) {
+    return this.transformOptOut(name, {
+      from: "name",
+      to: "id",
+      optOutCategory,
+      listId
+    });
   }
 
   async getOptOutCategories(
@@ -123,17 +134,19 @@ export default class MailchimpAPI extends RESTDataSource {
   }
 
   async transformOptOut(
-    optOut,
-    from,
-    to,
-    optOutCategory = this.OPT_OUT_CATEGORY,
-    listId = this.LIST_ID
+    value,
+    {
+      from = "id",
+      to = "name",
+      optOutCategory = this.OPT_OUT_CATEGORY,
+      listId = this.LIST_ID
+    } = {}
   ) {
     const optOutsKeyed = keyBy(
       await this.getOptOutCategories(optOutCategory, listId),
       from
     );
-    if (!optOutsKeyed.hasOwnProperty(optOut)) return null;
-    return optOutsKeyed[optOut][to];
+    if (!optOutsKeyed.hasOwnProperty(value)) return null;
+    return optOutsKeyed[value][to];
   }
 }
