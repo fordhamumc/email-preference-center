@@ -17,7 +17,6 @@ export function memberFieldsReducer({ customFields }) {
 export default function memberReducer(member) {
   const { id, email, emailType } = member;
   const fields = memberFieldsReducer(member);
-
   return {
     id: md5(email),
     email,
@@ -31,6 +30,9 @@ export default function memberReducer(member) {
     optOuts: Object.keys(fields.optOuts).filter(
       key => fields.optOuts[key] === "Yes"
     ),
-    recipientId: id
+    recipientId: id,
+    gdpr: fields["GDPR Email Consent"]
+      ? String(new Date(fields["GDPR Email Consent"]).getTime())
+      : null
   };
 }

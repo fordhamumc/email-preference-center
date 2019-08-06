@@ -61,7 +61,7 @@ export default class MailchimpAPI extends RESTDataSource {
   }
 
   async patchMember(
-    { id, status, email, optOuts = [] },
+    { id, status, email, optOuts = [], gdpr },
     optOutCategory = this.OPT_OUT_CATEGORY,
     listId = this.LIST_ID
   ) {
@@ -72,6 +72,9 @@ export default class MailchimpAPI extends RESTDataSource {
     if (email) payload.email_address = email;
 
     payload.merge_fields["MODIFIED"] = new Date().toString();
+
+    if (typeof gdpr === "boolean")
+      payload.merge_fields["GDPR"] = gdpr ? new Date().toString() : "";
 
     payload.interests = {};
     return Promise.all(

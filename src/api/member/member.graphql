@@ -56,6 +56,10 @@ type Member {
   Subscriber's IBM Marketing Cloud/FMP Recipient ID
   """
   recipientId: String
+  """
+  GDPR Consent Date
+  """
+  gdpr: String
 }
 
 input OptOutUpdateInput {
@@ -108,6 +112,10 @@ input MemberUpdateInput {
   A list of opt outs to add/remove
   """
   optOuts: [OptOutUpdateInput]
+  """
+  GDPR Consent toggle
+  """
+  gdpr: Boolean
 }
 
 type Query {

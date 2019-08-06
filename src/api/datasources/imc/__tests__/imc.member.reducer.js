@@ -1,14 +1,25 @@
 import memberReducer, { memberFieldsReducer } from "../imc.member.reducer";
+import cloneDeep from "lodash/cloneDeep";
 import md5 from "md5";
 
 describe("[ImcAPI.memberReducer]", () => {
   it("transforms member", () => {
     expect(memberReducer(mockMemberResponse)).toEqual(mockMember);
   });
+  it("returns null for empty gdpr", () => {
+    const member = cloneDeep(mockMember);
+    const response = cloneDeep(mockMemberResponse);
+    member.gdpr = null;
+    response.customFields = response.customFields.map(field => {
+      if (field.name === "GDPR Email Consent") field.value = "";
+      return field;
+    });
+    expect(memberReducer(response)).toEqual(member);
+  });
   it("transforms unsubscribed member", () => {
-    const unsubResponse = Object.assign({}, mockMemberResponse);
-    const unsubMember = Object.assign({}, mockMember);
-    unsubResponse.customFields = mockMemberResponse.customFields.map(field =>
+    const unsubResponse = cloneDeep(mockMemberResponse);
+    const unsubMember = cloneDeep(mockMember);
+    unsubResponse.customFields = unsubResponse.customFields.map(field =>
       field.name === "Fordham Opt Out"
         ? { name: field.name, value: "Yes" }
         : field
@@ -36,13 +47,15 @@ const mockMember = {
   roles: ["ROLE1", "ROLE2"],
   exclusions: [],
   optOuts: ["Cat 1", "Cat 3"],
-  recipientId: "12345"
+  recipientId: "12345",
+  gdpr: "475995600000"
 };
 
 const mockFields = {
   "First Name": "Ftest",
   "Fordham ID": "A000000",
   "Fordham Opt Out": "None",
+  "GDPR Email Consent": "01/31/1985 00:00:00",
   "Last Clicked": "09/28/2016",
   "Last Name": "Ltest",
   "Last Opened": "09/28/2016",
@@ -84,7 +97,8 @@ const mockMemberResponse = {
     { name: "Opt Out Cat 2", value: "" },
     { name: "Opt Out Cat 3", value: "Yes" },
     { name: "Opt Out Cat 4", value: "No" },
-    { name: "Role", value: "ROLE1, ROLE2" }
+    { name: "Role", value: "ROLE1, ROLE2" },
+    { name: "GDPR Email Consent", value: "01/31/1985 00:00:00" }
   ],
   optInDate: "2016-06-10T14:06:15.000+00:00"
 };

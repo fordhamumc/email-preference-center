@@ -18,7 +18,7 @@ export default async function memberReducer(member, api) {
     email_type: emailType,
     status,
     interests,
-    merge_fields: { FNAME, LNAME, FIDN, ROLE, EXCLUSION, IMCID }
+    merge_fields: { FNAME, LNAME, FIDN, ROLE, EXCLUSION, IMCID, GDPR }
   } = member;
   return {
     id,
@@ -31,6 +31,7 @@ export default async function memberReducer(member, api) {
     roles: fieldToArray(ROLE),
     optOuts: await optOutsReducer(interests, api),
     exclusions: fieldToArray(EXCLUSION),
-    recipientId: IMCID
+    recipientId: IMCID,
+    gdpr: GDPR ? String(new Date(GDPR).getTime()) : null
   };
 }

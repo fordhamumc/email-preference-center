@@ -1,5 +1,6 @@
 import MailchimpAPI from "..";
 import memberReducer from "../mailchimp.member.reducer";
+import cloneDeep from "lodash/cloneDeep";
 
 const MOCK_API_KEY = "ABC123-us1";
 const MOCK_LIST_ID = "1a23";
@@ -18,6 +19,14 @@ describe("[MailchimpAPI.memberReducer]", () => {
     ds.get.mockReturnValue(mockOptOutCategoriesResponse);
     expect(await memberReducer(mockMemberResponse, ds)).toEqual(mockMember);
   });
+  it("returns null for empty gdpr", () => {
+    ds.get.mockReturnValue(mockOptOutCategoriesResponse);
+    const member = cloneDeep(mockMember);
+    const response = cloneDeep(mockMemberResponse);
+    member.gdpr = null;
+    response.merge_fields.GDPR = "";
+    expect(memberReducer(response, ds)).toEqual(member);
+  });
 });
 
 // Transformed member data
@@ -32,7 +41,8 @@ const mockMember = {
   roles: ["DOG", "PET", "ANIMAL"],
   optOuts: ["Test Category", "Test Category 3", "Test Category 4"],
   exclusions: ["NON", "EER"],
-  recipientId: "ajs94330fs"
+  recipientId: "ajs94330fs",
+  gdpr: "475995600000"
 };
 
 // Raw response from API
@@ -49,7 +59,8 @@ const mockMemberResponse = {
     SCHOOL: "AB",
     YEAR: "2019",
     ROLE: "^DOG^,^PET^,^ANIMAL^",
-    EXCLUSION: "^NON^,^EER^"
+    EXCLUSION: "^NON^,^EER^",
+    GDPR: "Thu Jan 31 1985 00:00:00 GMT-0500"
   },
   interests: {
     "854dk03": false,

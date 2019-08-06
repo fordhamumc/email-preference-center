@@ -82,7 +82,7 @@ export default class ImcAPI extends RESTDataSource {
   }
 
   async patchMember(
-    { recipientId: id, status, optOuts },
+    { recipientId: id, status, optOuts, gdpr },
     databaseId = this.DATABASE_ID
   ) {
     if (!id) return null;
@@ -110,6 +110,14 @@ export default class ImcAPI extends RESTDataSource {
         value: new Date().toISOString()
       }
     ];
+    if (typeof gdpr === "boolean")
+      payload.customFields = [
+        ...payload.customFields,
+        {
+          name: "GDPR Email Consent",
+          value: gdpr ? new Date().toISOString() : ""
+        }
+      ];
     const member = this.patch(
       `rest/databases/${databaseId}/contacts/${id}`,
       payload

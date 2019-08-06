@@ -29,21 +29,21 @@ mocks.getOAuthAccessToken.mockReturnValue("abcd1234");
 
 describe("[ImcAPI.constructor]", () => {
   it("throws error if missing id, secret, or refresh token", () => {
-    const optionsWithoutId = Object.assign({}, MOCK_OPTIONS);
+    const optionsWithoutId = { ...MOCK_OPTIONS };
     delete optionsWithoutId.id;
     expect(() => new ImcAPI(optionsWithoutId)).toThrow(Error);
 
-    const optionsWithoutSecret = Object.assign({}, MOCK_OPTIONS);
+    const optionsWithoutSecret = { ...MOCK_OPTIONS };
     delete optionsWithoutSecret.secret;
     expect(() => new ImcAPI(optionsWithoutSecret)).toThrow(Error);
 
-    const optionsWithoutRefresh = Object.assign({}, MOCK_OPTIONS);
+    const optionsWithoutRefresh = { ...MOCK_OPTIONS };
     delete optionsWithoutRefresh.refreshToken;
     expect(() => new ImcAPI(optionsWithoutRefresh)).toThrow(Error);
   });
 
   it("throws error if id is not between 1 and 8", () => {
-    const options = Object.assign({}, MOCK_OPTIONS);
+    const options = { ...MOCK_OPTIONS };
     options.pod = 0;
     expect(() => new ImcAPI(options)).toThrow(Error);
 
@@ -122,7 +122,7 @@ describe("[ImcAPI.patchMember]", () => {
       {
         customFields: [
           { name: "Fordham Opt Out", value: "Yes" },
-          { name: "Preference Form Modified", value: expect.anything() }
+          { name: "Preference Form Modified", value: expect.any(String) }
         ]
       }
     );
@@ -137,7 +137,7 @@ describe("[ImcAPI.patchMember]", () => {
       {
         customFields: [
           { name: "Fordham Opt Out", value: "None" },
-          { name: "Preference Form Modified", value: expect.anything() }
+          { name: "Preference Form Modified", value: expect.any(String) }
         ]
       }
     );
@@ -155,7 +155,46 @@ describe("[ImcAPI.patchMember]", () => {
         customFields: [
           { name: "Opt Out Cat 1", value: "Yes" },
           { name: "Opt Out Cat 2", value: "No" },
-          { name: "Preference Form Modified", value: expect.anything() }
+          { name: "Preference Form Modified", value: expect.any(String) }
+        ]
+      }
+    );
+  });
+
+  it("adds GDPR field to payload", async () => {
+    mocks.patch
+      .mockReturnValueOnce(Promise.resolve({}))
+      .mockReturnValueOnce(Promise.resolve({}));
+    mocks.get
+      .mockReturnValueOnce(mockMemberResponse)
+      .mockReturnValueOnce(mockMemberResponse)
+      .mockReturnValueOnce(mockMemberResponse)
+      .mockReturnValueOnce(mockMemberResponse);
+    const input = { ...mockInput };
+    input.gdpr = true;
+    await ds.patchMember(input);
+    expect(mocks.patch).toBeCalledWith(
+      `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
+      {
+        customFields: [
+          { name: "Opt Out Cat 1", value: "Yes" },
+          { name: "Opt Out Cat 2", value: "No" },
+          { name: "Preference Form Modified", value: expect.any(String) },
+          { name: "GDPR Email Consent", value: expect.any(String) }
+        ]
+      }
+    );
+
+    input.gdpr = false;
+    await ds.patchMember(input);
+    expect(mocks.patch).toBeCalledWith(
+      `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
+      {
+        customFields: [
+          { name: "Opt Out Cat 1", value: "Yes" },
+          { name: "Opt Out Cat 2", value: "No" },
+          { name: "Preference Form Modified", value: expect.any(String) },
+          { name: "GDPR Email Consent", value: "" }
         ]
       }
     );
@@ -183,7 +222,7 @@ describe("[ImcAPI.unsubscribeMember]", () => {
       {
         customFields: [
           { name: "Fordham Opt Out", value: "Yes" },
-          { name: "Preference Form Modified", value: expect.anything() }
+          { name: "Preference Form Modified", value: expect.any(String) }
         ]
       }
     );
@@ -236,13 +275,15 @@ const mockMember = {
   roles: ["ROLE1", "ROLE2"],
   exclusions: [],
   optOuts: ["Cat 1", "Cat 3"],
-  recipientId: "12345"
+  recipientId: "12345",
+  gdpr: "475995600000"
 };
 
 const mockFields = {
   "First Name": "Ftest",
   "Fordham ID": "A000000",
   "Fordham Opt Out": "None",
+  "GDPR Email Consent": "01/31/1985 00:00:00",
   "Last Clicked": "09/28/2016",
   "Last Name": "Ltest",
   "Last Opened": "09/28/2016",
@@ -291,7 +332,8 @@ const mockMemberResponse = {
       { name: "Opt Out Cat 2", value: "" },
       { name: "Opt Out Cat 3", value: "Yes" },
       { name: "Opt Out Cat 4", value: "No" },
-      { name: "Role", value: "ROLE1, ROLE2" }
+      { name: "Role", value: "ROLE1, ROLE2" },
+      { name: "GDPR Email Consent", value: "01/31/1985 00:00:00" }
     ],
     optInDate: "2016-06-10T14:06:15.000+00:00"
   }

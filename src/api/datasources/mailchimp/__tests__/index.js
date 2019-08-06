@@ -49,7 +49,7 @@ describe("[MailchimpAPI.willSendRequest]", () => {
 });
 
 describe("[MailchimpAPI.getMember]", () => {
-  it("should get member by id", async () => {
+  it("gets member by id", async () => {
     mocks.get.mockReturnValueOnce(mockMemberResponse);
     mocks.getOptOutCategories.mockReturnValue(
       mockOptOutCategoriesResponse.interests
@@ -74,7 +74,7 @@ describe("[MailchimpAPI.getMember]", () => {
 });
 
 describe("[MailchimpAPI.patchMember]", () => {
-  it("should send update and return member", async () => {
+  it("sends update and returns member", async () => {
     mocks.patch.mockReturnValueOnce(mockMemberResponse);
 
     const res = await ds.patchMember({
@@ -89,12 +89,12 @@ describe("[MailchimpAPI.patchMember]", () => {
         email_address: "test2@test.com",
         status: "unsubscribed",
         interests: {},
-        merge_fields: { MODIFIED: expect.anything() }
+        merge_fields: { MODIFIED: expect.any(String) }
       }
     );
   });
 
-  it("should format optouts properly", async () => {
+  it("formats optouts properly", async () => {
     mocks.getOptOutCategories.mockReturnValue(
       mockOptOutCategoriesResponse.interests
     );
@@ -113,12 +113,43 @@ describe("[MailchimpAPI.patchMember]", () => {
           fjkd453: true,
           "854dk03": false
         },
-        merge_fields: { MODIFIED: expect.anything() }
+        merge_fields: { MODIFIED: expect.any(String) }
       }
     );
   });
 
-  it("should remove optouts that don't exist", async () => {
+  it("adds GDPR field to payload", async () => {
+    mocks.getOptOutCategories.mockReturnValue(
+      mockOptOutCategoriesResponse.interests
+    );
+    mocks.patch
+      .mockReturnValueOnce(mockMemberResponse)
+      .mockReturnValueOnce(mockMemberResponse);
+    const input = {
+      id: "b642b4217b34b1e8d3bd915fc65c4452",
+      gdpr: true
+    };
+    await ds.patchMember(input);
+    expect(mocks.patch).toBeCalledWith(
+      `lists/${MOCK_LIST_ID}/members/b642b4217b34b1e8d3bd915fc65c4452`,
+      {
+        interests: {},
+        merge_fields: { MODIFIED: expect.any(String), GDPR: expect.any(String) }
+      }
+    );
+
+    input.gdpr = false;
+    await ds.patchMember(input);
+    expect(mocks.patch).toBeCalledWith(
+      `lists/${MOCK_LIST_ID}/members/b642b4217b34b1e8d3bd915fc65c4452`,
+      {
+        interests: {},
+        merge_fields: { MODIFIED: expect.any(String), GDPR: "" }
+      }
+    );
+  });
+
+  it("removes optouts that don't exist", async () => {
     mocks.getOptOutCategories.mockReturnValue(
       mockOptOutCategoriesResponse.interests
     );
@@ -136,14 +167,14 @@ describe("[MailchimpAPI.patchMember]", () => {
         interests: {
           fjkd453: true
         },
-        merge_fields: { MODIFIED: expect.anything() }
+        merge_fields: { MODIFIED: expect.any(String) }
       }
     );
   });
 });
 
 describe("[MailchimpAPI.unsubscribeMember]", () => {
-  it("should call patchMember to set status to unsubscribed", async () => {
+  it("calls patchMember to set status to unsubscribed", async () => {
     mocks.patch.mockReturnValueOnce(mockMemberResponse);
     await ds.unsubscribeMember({ id: "b642b4217b34b1e8d3bd915fc65c4452" });
     expect(mocks.patch).toBeCalledWith(
@@ -151,14 +182,14 @@ describe("[MailchimpAPI.unsubscribeMember]", () => {
       {
         status: "unsubscribed",
         interests: {},
-        merge_fields: { MODIFIED: expect.anything() }
+        merge_fields: { MODIFIED: expect.any(String) }
       }
     );
   });
 });
 
 describe("[MailchimpAPI.getOptOutById]", () => {
-  it("should return a category name from its id", async () => {
+  it("returns a category name from its id", async () => {
     mocks.get.mockReturnValueOnce(mockOptOutCategoriesResponse);
     const res = await ds.getOptOutById("fjkd453");
     expect(res).toEqual("Test Category");
@@ -166,7 +197,7 @@ describe("[MailchimpAPI.getOptOutById]", () => {
 });
 
 describe("[MailchimpAPI.getOptOutIdByName]", () => {
-  it("should return a category id from its name", async () => {
+  it("returns a category id from its name", async () => {
     mocks.get.mockReturnValueOnce(mockOptOutCategoriesResponse);
     const res = await ds.getOptOutIdByName("Test Category");
     expect(res).toEqual("fjkd453");
@@ -174,7 +205,7 @@ describe("[MailchimpAPI.getOptOutIdByName]", () => {
 });
 
 describe("[MailchimpAPI.getOptOutCategories]", () => {
-  it("should be called with list id and optOutCategory id", async () => {
+  it("is called with list id and optOutCategory id", async () => {
     ds.getOptOutCategories = tmpGetOptOutCategories;
     mocks.get.mockReturnValueOnce(mockOptOutCategoriesResponse);
     const res = await ds.getOptOutCategories("1234", "abcd", 20);
@@ -187,7 +218,7 @@ describe("[MailchimpAPI.getOptOutCategories]", () => {
     ds.getOptOutCategories = mocks.getOptOutCategories;
   });
 
-  it("should be called with defaults", async () => {
+  it("is called with defaults", async () => {
     ds.getOptOutCategories = tmpGetOptOutCategories;
     mocks.get.mockReturnValueOnce(mockOptOutCategoriesResponse);
     await ds.getOptOutCategories();
@@ -201,7 +232,7 @@ describe("[MailchimpAPI.getOptOutCategories]", () => {
 });
 
 describe("[MailchimpAPI.transformOptOut]", () => {
-  it("should return null if search value does not exist", async () => {
+  it("returns null if search value does not exist", async () => {
     mocks.get.mockReturnValueOnce(mockOptOutCategoriesResponse);
     const res = await ds.transformOptOut("1234");
     expect(res).toEqual(null);
@@ -224,7 +255,8 @@ const mockMember = {
   roles: ["DOG", "PET", "ANIMAL"],
   optOuts: ["Test Category", "Test Category 3", "Test Category 4"],
   exclusions: ["NON", "EER"],
-  recipientId: "ajs94330fs"
+  recipientId: "ajs94330fs",
+  gdpr: "475995600000"
 };
 
 // Raw response from API
@@ -241,7 +273,8 @@ const mockMemberResponse = {
     SCHOOL: "AB",
     YEAR: "2019",
     ROLE: "^DOG^,^PET^,^ANIMAL^",
-    EXCLUSION: "^NON^,^EER^"
+    EXCLUSION: "^NON^,^EER^",
+    GDPR: "Thu Jan 31 1985 00:00:00 GMT-0500"
   },
   interests: {
     "854dk03": false,
