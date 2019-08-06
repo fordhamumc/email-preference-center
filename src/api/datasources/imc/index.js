@@ -103,6 +103,13 @@ export default class ImcAPI extends RESTDataSource {
         }))
       ];
     }
+    payload.customFields = [
+      ...payload.customFields,
+      {
+        name: "Preference Form Modified",
+        value: new Date().toISOString()
+      }
+    ];
     const member = this.patch(
       `rest/databases/${databaseId}/contacts/${id}`,
       payload

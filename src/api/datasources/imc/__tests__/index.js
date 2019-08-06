@@ -120,7 +120,10 @@ describe("[ImcAPI.patchMember]", () => {
     expect(mocks.patch).toBeCalledWith(
       `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
       {
-        customFields: [{ name: "Fordham Opt Out", value: "Yes" }]
+        customFields: [
+          { name: "Fordham Opt Out", value: "Yes" },
+          { name: "Preference Form Modified", value: expect.anything() }
+        ]
       }
     );
 
@@ -132,7 +135,10 @@ describe("[ImcAPI.patchMember]", () => {
     expect(mocks.patch).toBeCalledWith(
       `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
       {
-        customFields: [{ name: "Fordham Opt Out", value: "None" }]
+        customFields: [
+          { name: "Fordham Opt Out", value: "None" },
+          { name: "Preference Form Modified", value: expect.anything() }
+        ]
       }
     );
   });
@@ -148,7 +154,8 @@ describe("[ImcAPI.patchMember]", () => {
       {
         customFields: [
           { name: "Opt Out Cat 1", value: "Yes" },
-          { name: "Opt Out Cat 2", value: "No" }
+          { name: "Opt Out Cat 2", value: "No" },
+          { name: "Preference Form Modified", value: expect.anything() }
         ]
       }
     );
@@ -173,7 +180,12 @@ describe("[ImcAPI.unsubscribeMember]", () => {
     const res = await ds.unsubscribeMember({ recipientId: "12345" });
     expect(mocks.patch).toBeCalledWith(
       `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
-      { customFields: [{ name: "Fordham Opt Out", value: "Yes" }] }
+      {
+        customFields: [
+          { name: "Fordham Opt Out", value: "Yes" },
+          { name: "Preference Form Modified", value: expect.anything() }
+        ]
+      }
     );
   });
 });

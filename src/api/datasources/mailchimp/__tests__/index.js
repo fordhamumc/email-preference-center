@@ -88,7 +88,8 @@ describe("[MailchimpAPI.patchMember]", () => {
       {
         email_address: "test2@test.com",
         status: "unsubscribed",
-        interests: {}
+        interests: {},
+        merge_fields: { MODIFIED: expect.anything() }
       }
     );
   });
@@ -111,7 +112,8 @@ describe("[MailchimpAPI.patchMember]", () => {
         interests: {
           fjkd453: true,
           "854dk03": false
-        }
+        },
+        merge_fields: { MODIFIED: expect.anything() }
       }
     );
   });
@@ -133,7 +135,8 @@ describe("[MailchimpAPI.patchMember]", () => {
       {
         interests: {
           fjkd453: true
-        }
+        },
+        merge_fields: { MODIFIED: expect.anything() }
       }
     );
   });
@@ -145,7 +148,11 @@ describe("[MailchimpAPI.unsubscribeMember]", () => {
     await ds.unsubscribeMember({ id: "b642b4217b34b1e8d3bd915fc65c4452" });
     expect(mocks.patch).toBeCalledWith(
       `lists/${MOCK_LIST_ID}/members/b642b4217b34b1e8d3bd915fc65c4452`,
-      { status: "unsubscribed", interests: {} }
+      {
+        status: "unsubscribed",
+        interests: {},
+        merge_fields: { MODIFIED: expect.anything() }
+      }
     );
   });
 });

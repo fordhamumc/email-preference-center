@@ -65,17 +65,22 @@ export default class MailchimpAPI extends RESTDataSource {
     optOutCategory = this.OPT_OUT_CATEGORY,
     listId = this.LIST_ID
   ) {
-    const payload = {};
+    const payload = {
+      merge_fields: {}
+    };
     if (status) payload.status = status;
     if (email) payload.email_address = email;
+
+    payload.merge_fields["MODIFIED"] = new Date().toString();
 
     payload.interests = {};
     return Promise.all(
       optOuts.map(async optOut => {
-        const optOutId = await this.getOptOutIdByName(optOut.name, {
+        const optOutId = await this.getOptOutIdByName(
+          optOut.name,
           optOutCategory,
           listId
-        });
+        );
         if (optOutId) {
           payload.interests[optOutId] = optOut.optOut;
         }
@@ -121,7 +126,7 @@ export default class MailchimpAPI extends RESTDataSource {
     listId = this.LIST_ID,
     limit = 60
   ) {
-    return (await this.get(
+    const res = await this.get(
       `lists/${listId}/interest-categories/${optOutCategory}/interests`,
       {
         fields: ["interests.id", "interests.category_id", "interests.name"],
@@ -130,7 +135,8 @@ export default class MailchimpAPI extends RESTDataSource {
       {
         cacheOptions: { ttl: 3600 }
       }
-    ))["interests"];
+    );
+    return res["interests"];
   }
 
   async transformOptOut(
