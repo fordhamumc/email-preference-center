@@ -1,8 +1,6 @@
-import dotenv from "dotenv";
 import NodeCache from "node-cache";
 import MailchimpAPI from "./mailchimp";
 import ImcAPI from "./imc";
-dotenv.config();
 
 const myCache = new NodeCache();
 const {

@@ -1,7 +1,7 @@
 import memberResolver from "./member.resolvers";
-import gqlLoader from "../../utils/gqlLoader";
+import memberTypeDefs from "./member.graphql";
 
 export default {
   resolvers: memberResolver,
-  typeDefs: gqlLoader("member/member.graphql")
+  typeDefs: memberTypeDefs
 };
