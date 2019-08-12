@@ -19,13 +19,13 @@ describe("[MailchimpAPI.memberReducer]", () => {
     ds.get.mockReturnValue(mockOptOutCategoriesResponse);
     expect(await memberReducer(mockMemberResponse, ds)).toEqual(mockMember);
   });
-  it("returns null for empty gdpr", () => {
+  it("returns null for empty gdpr", async () => {
     ds.get.mockReturnValue(mockOptOutCategoriesResponse);
     const member = cloneDeep(mockMember);
     const response = cloneDeep(mockMemberResponse);
     member.gdpr = null;
     response.merge_fields.GDPR = "";
-    expect(memberReducer(response, ds)).toEqual(member);
+    expect(await memberReducer(response, ds)).toEqual(member);
   });
 });
 

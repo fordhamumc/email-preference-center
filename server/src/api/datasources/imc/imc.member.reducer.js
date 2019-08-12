@@ -33,6 +33,7 @@ export default function memberReducer(member) {
     recipientId: id,
     gdpr: fields["GDPR Email Consent"]
       ? String(new Date(fields["GDPR Email Consent"]).getTime())
-      : null
+      : null,
+    __emailUpdatable: false
   };
 }

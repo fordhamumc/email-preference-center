@@ -1,7 +1,7 @@
 {
-  "name": "email-preference-graphql-wrapperq",
+  "name": "email-preference-graphql-server",
   "version": "1.0.0",
-  "description": "A GraphQL wrapper for the Mailchimp 3.0 REST API",
+  "description": "A GraphQL wrapper for the Mailchimp and Acoustic REST APIs",
   "main": "src/server.js",
   "scripts": {
     "build": "webpack --config scripts/webpack.$NODE_ENV.js",
@@ -24,8 +24,7 @@
     "lodash": "^4.17.14",
     "md5": "^2.2.1",
     "node-cache": "^4.2.0",
-    "p-queue": "^6.0.2",
-    "webpack-dev-server": "^3.7.2"
+    "p-queue": "^6.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",

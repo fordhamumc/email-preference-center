@@ -276,7 +276,8 @@ const mockMember = {
   exclusions: [],
   optOuts: ["Cat 1", "Cat 3"],
   recipientId: "12345",
-  gdpr: "475995600000"
+  gdpr: "475995600000",
+  __emailUpdatable: false
 };
 
 const mockFields = {
