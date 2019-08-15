@@ -73,19 +73,27 @@ export default class ImcAPI extends RESTDataSource {
     return res.access_token;
   }
 
-  async getMember({ recipientId: id }, databaseId = this.DATABASE_ID) {
-    if (!id) return null;
+  getRecipientId(id) {
+    return isNaN(id)
+      ? parseInt(Buffer.from(id, "base64").toString("ascii"))
+      : id;
+  }
+
+  async getMember({ recipientId }, databaseId = this.DATABASE_ID) {
+    if (!recipientId) return null;
+    const id = this.getRecipientId(recipientId);
     const member = await this.get(
       `rest/databases/${databaseId}/contacts/${id}`
     );
-    return memberReducer({ id, ...member.data });
+    return memberReducer({ id: recipientId, ...member.data });
   }
 
   async patchMember(
-    { recipientId: id, status, optOuts, gdpr },
+    { recipientId, status, optOuts, gdpr },
     databaseId = this.DATABASE_ID
   ) {
-    if (!id) return null;
+    if (!recipientId) return null;
+    const id = this.getRecipientId(recipientId);
     const payload = { customFields: [] };
     if (status) {
       payload.customFields.push({
@@ -121,7 +129,7 @@ export default class ImcAPI extends RESTDataSource {
     const member = this.patch(
       `rest/databases/${databaseId}/contacts/${id}`,
       payload
-    ).then(async _ => await this.getMember({ recipientId: id }, databaseId));
+    ).then(async _ => await this.getMember({ recipientId }, databaseId));
     return member;
   }
 

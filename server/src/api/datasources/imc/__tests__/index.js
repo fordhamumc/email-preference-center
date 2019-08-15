@@ -81,6 +81,18 @@ describe("[ImcAPI.getOAuthAccessToken]", () => {
   });
 });
 
+describe("[ImcAPI.getRecipientId]", () => {
+  it("returns unencoded id when encoded id is given", () => {
+    expect(ds.getRecipientId("MTIzNDU2Nzg5").toEqual("123456789"));
+  });
+  it("strips trailing K", () => {
+    expect(ds.getRecipientId("MTIzNDU2Nzg5S0").toEqual("123456789"));
+  });
+  it("returns id when not encoded", () => {
+    expect(ds.getRecipientId("123456789").toEqual("123456789"));
+  });
+});
+
 describe("[ImcAPI.getMember]", () => {
   it("returns null if recipientId is empty", async () => {
     const res = await ds.getMember({ id: "abc1234" });
