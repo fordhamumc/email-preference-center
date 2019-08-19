@@ -3,7 +3,7 @@
 //   description: "an optional description that can appear below the name"
 // }
 
-export default {
+const optOutOptions = {
   "Alumni Relations": {},
   Athletics: {},
   "Campus Ministry": {},
@@ -11,7 +11,7 @@ export default {
   "Fordham College at Lincoln Center": {},
   "Fordham College at Rose Hill": {},
   "Fordham Magazine": {
-    name: "<em>FORDHAM</em> Magazine",
+    name: "FORDHAM Magazine",
     description:
       "A monthly email including stories from the print edition plus timely news and features found only online."
   },
@@ -37,3 +37,12 @@ export default {
   "University News": {},
   Wellbeing: {}
 };
+
+export function optOutUpdateFormat(optOuts) {
+  return Object.keys(optOutOptions).map(option => ({
+    name: option,
+    optOut: optOuts.includes(option)
+  }));
+}
+
+export default optOutOptions;

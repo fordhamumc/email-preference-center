@@ -1,56 +1,24 @@
-import React, { Component } from "react";
-// import './App.css';
-
-import { ApolloProvider, useQuery } from "@apollo/react-hooks";
-import ApolloClient, { gql } from "apollo-boost";
+import React from "react";
+import { ApolloProvider } from "@apollo/react-hooks";
+import ApolloClient from "apollo-boost";
+import { Router } from "@reach/router";
+import PreferenceForm from "./PreferenceForm";
+import member from "./member";
 
 const client = new ApolloClient({
-  uri: "/"
+  uri: "/",
+  resolvers: [member.resolvers]
 });
 
-const GET_MEMBER = gql`
-  query getMember($input: MemberInput!) {
-    member(input: $input) {
-      firstName
-      lastName
-      optOuts
-    }
-  }
-`;
-
-const Member = () => {
-  const { loading, error, data } = useQuery(GET_MEMBER, {
-    variables: {
-      input: { email: "mifoley@fordham.edu", recipientId: "141123581359" }
-    }
-  });
-  console.log(data);
-  if (loading) return <p>Loading ...</p>;
-  if (error) return <p>Error :(</p>;
-  return (
+const App = () => (
+  <ApolloProvider client={client}>
     <div>
-      <h1>
-        Unsubscribes for {data.member.firstName} {data.member.lastName}
-      </h1>
-      <ul>
-        {data.member.optOuts.map(optOut => (
-          <li key="optOut">{optOut}</li>
-        ))}
-      </ul>
+      <Router>
+        <PreferenceForm path="/:email/:recipientId" />
+        <PreferenceForm path="a/:email/:encodedId" />
+      </Router>
     </div>
-  );
-};
-
-class App extends Component {
-  render() {
-    return (
-      <ApolloProvider client={client}>
-        <div className="App">
-          <Member />
-        </div>
-      </ApolloProvider>
-    );
-  }
-}
+  </ApolloProvider>
+);
 
 export default App;
