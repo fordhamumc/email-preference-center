@@ -14,13 +14,13 @@ const DELETE_OPT_OUT = gql`
   }
 `;
 
-const OptOutField = ({ optOut, member }) => {
+const OptOutField = ({ optOut, member: { id, optOuts, status } }) => {
   const [updateOptOut] = useMutation(UPDATE_OPT_OUT);
   const [deleteOptOut] = useMutation(DELETE_OPT_OUT);
   const optOutsDetails = optOutOptions[optOut];
 
   const handleOptOutChange = e => {
-    const variables = { input: { id: member.id, name: optOut } };
+    const variables = { input: { id, name: optOut } };
     if (e.target.checked) {
       updateOptOut({ variables });
     } else {
@@ -34,8 +34,9 @@ const OptOutField = ({ optOut, member }) => {
         <input
           name={optOut}
           type="checkbox"
-          checked={member.optOuts.includes(optOut)}
+          checked={optOuts.includes(optOut)}
           onChange={handleOptOutChange}
+          disabled={["unsubscribed", "cleaned"].includes(status)}
         />
         {optOutsDetails.name || optOut}
         {optOutsDetails.description && (

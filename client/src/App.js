@@ -14,8 +14,8 @@ const App = () => (
   <ApolloProvider client={client}>
     <div>
       <Router>
+        <PreferenceForm path="/:email" />
         <PreferenceForm path="/:email/:recipientId" />
-        <PreferenceForm path="a/:email/:encodedId" />
       </Router>
     </div>
   </ApolloProvider>

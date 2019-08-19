@@ -5,6 +5,7 @@ import { gql } from "apollo-boost";
 import EmailField from "./EmailField";
 import { optOutUpdateFormat } from "./optOutOptions";
 import { navigate } from "@reach/router";
+import UnsubscribeField from "./UnsubscribeField";
 
 const MEMBER_FRAGMENT = gql`
   fragment memberFields on Member {
@@ -15,6 +16,7 @@ const MEMBER_FRAGMENT = gql`
     email
     optOuts
     gdpr
+    current
   }
 `;
 
@@ -86,6 +88,7 @@ const PreferenceForm = ({ email, recipientId, encodedId }) => {
     <form onSubmit={handleFormSubmit}>
       <EmailField member={data.member} />
       <OptOutList member={data.member} />
+      <UnsubscribeField member={data.member} />
       <input type="submit" value="submit" />
       {mutationLoading && <p>Updating...</p>}
       {mutationError && <p>Please try again.</p>}

@@ -24,18 +24,23 @@ const deleteOptOut = (_root, { input }, ctx) => {
   return null;
 };
 
+const setStatus = (_root, { input }, { cache, getCacheKey }) => {
+  const id = getCacheKey({ __typename: "Member", id: input.id });
+  cache.writeData({ id, data: { status: input.status } });
+  return null;
+};
+
 const setEmail = (_root, { input }, { cache, getCacheKey }) => {
-  const id = getCacheKey({
-    __typename: "Member",
-    id: input.id
-  });
+  const id = getCacheKey({ __typename: "Member", id: input.id });
   cache.writeData({ id, data: { email: input.email } });
+  return null;
 };
 
 export default {
   Mutation: {
     updateOptOut,
     deleteOptOut,
+    setStatus,
     setEmail
   }
 };
