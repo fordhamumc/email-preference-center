@@ -38,7 +38,7 @@ const mockMember = {
   firstName: "Lucy",
   lastName: "Foley",
   fidn: "P001234",
-  roles: ["DOG", "PET", "ANIMAL"],
+  current: false,
   optOuts: ["Test Category", "Test Category 3", "Test Category 4"],
   exclusions: ["NON", "EER"],
   recipientId: "ajs94330fs",

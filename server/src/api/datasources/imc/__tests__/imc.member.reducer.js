@@ -44,7 +44,7 @@ const mockMember = {
   firstName: "Ftest",
   lastName: "Ltest",
   fidn: "A000000",
-  roles: ["ROLE1", "ROLE2"],
+  current: true,
   exclusions: [],
   optOuts: ["Cat 1", "Cat 3"],
   recipientId: "12345",
@@ -67,7 +67,7 @@ const mockFields = {
     "Cat 3": "Yes",
     "Cat 4": "No"
   },
-  Role: "ROLE1, ROLE2"
+  Role: "ROLE1, ROLE2, EMPLOYEE"
 };
 
 // Raw response from API
@@ -98,7 +98,7 @@ const mockMemberResponse = {
     { name: "Opt Out Cat 2", value: "" },
     { name: "Opt Out Cat 3", value: "Yes" },
     { name: "Opt Out Cat 4", value: "No" },
-    { name: "Role", value: "ROLE1, ROLE2" },
+    { name: "Role", value: "ROLE1, ROLE2, EMPLOYEE" },
     { name: "GDPR Email Consent", value: "01/31/1985 00:00:00" }
   ],
   optInDate: "2016-06-10T14:06:15.000+00:00"

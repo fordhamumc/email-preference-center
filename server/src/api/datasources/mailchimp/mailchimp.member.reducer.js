@@ -20,6 +20,7 @@ export default async function memberReducer(member, api) {
     interests,
     merge_fields: { FNAME, LNAME, FIDN, ROLE, EXCLUSION, IMCID, GDPR }
   } = member;
+  const roles = fieldToArray(ROLE);
   return {
     id,
     email,
@@ -28,7 +29,10 @@ export default async function memberReducer(member, api) {
     firstName: FNAME,
     lastName: LNAME,
     fidn: FIDN,
-    roles: fieldToArray(ROLE),
+    current:
+      roles.includes("STUDENT_ACTIVE") ||
+      roles.includes("EMPLOYEE") ||
+      roles.includes("NB_EMPLOYEE"),
     optOuts: await optOutsReducer(interests, api),
     exclusions: fieldToArray(EXCLUSION),
     recipientId: IMCID,

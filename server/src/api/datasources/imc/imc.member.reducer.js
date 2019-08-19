@@ -17,6 +17,7 @@ export function memberFieldsReducer({ customFields }) {
 export default function memberReducer(member) {
   const { id, email, emailType } = member;
   const fields = memberFieldsReducer(member);
+  const roles = fields["Role"].split(", ");
   return {
     id: md5(email),
     email,
@@ -25,7 +26,10 @@ export default function memberReducer(member) {
     firstName: fields["First Name"],
     lastName: fields["Last Name"],
     fidn: fields["Fordham ID"],
-    roles: fields["Role"].split(", "),
+    current:
+      roles.includes("STUDENT_ACTIVE") ||
+      roles.includes("EMPLOYEE") ||
+      roles.includes("NB_EMPLOYEE"),
     exclusions: [],
     optOuts: Object.keys(fields.optOuts).filter(
       key => fields.optOuts[key] === "Yes"

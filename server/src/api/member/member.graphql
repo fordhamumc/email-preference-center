@@ -45,9 +45,9 @@ type Member {
   """
   fidn: String
   """
-  Subscriber's Fordham roles
+  Is the member a current Fordham employee or student
   """
-  roles: [String]
+  current: Boolean
   """
   Subscriber's exclusion codes
   """

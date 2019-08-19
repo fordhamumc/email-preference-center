@@ -75,7 +75,7 @@ export default class ImcAPI extends RESTDataSource {
 
   getRecipientId(id) {
     return isNaN(id)
-      ? parseInt(Buffer.from(id, "base64").toString("ascii"))
+      ? String(parseInt(Buffer.from(id, "base64").toString("ascii")))
       : id;
   }
 
