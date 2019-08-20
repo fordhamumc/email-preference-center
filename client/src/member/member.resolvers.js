@@ -10,7 +10,7 @@ const getOptOuts = (memberId, { cache, getCacheKey }) => {
   return [cache.readFragment({ fragment, id }), id];
 };
 
-const updateOptOut = (_root, { input }, ctx) => {
+const addOptOut = (_root, { input }, ctx) => {
   const [data, id] = getOptOuts(input.id, ctx);
   data.optOuts = [...data.optOuts, input.name];
   ctx.cache.writeData({ id, data });
@@ -38,7 +38,7 @@ const setEmail = (_root, { input }, { cache, getCacheKey }) => {
 
 export default {
   Mutation: {
-    updateOptOut,
+    addOptOut,
     deleteOptOut,
     setStatus,
     setEmail

@@ -1,5 +1,5 @@
 // "preference name": {
-//   name: "optional display name that appears on the form. if not present the name defaults to the preference name",
+//   label: "optional display name that appears on the form. if not present the name defaults to the preference name",
 //   description: "an optional description that can appear below the name"
 // }
 
@@ -11,7 +11,7 @@ const optOutOptions = {
   "Fordham College at Lincoln Center": {},
   "Fordham College at Rose Hill": {},
   "Fordham Magazine": {
-    name: "FORDHAM Magazine",
+    label: "FORDHAM Magazine",
     description:
       "A monthly email including stories from the print edition plus timely news and features found only online."
   },
