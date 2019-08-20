@@ -1,6 +1,7 @@
 import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
+import forms from "../defaults/forms.module.css";
 
 const SET_EMAIL = gql`
   mutation SetEmail($input: MemberInput!) {
@@ -17,12 +18,15 @@ const EmailField = ({ member }) => {
       }
     });
   return (
-    <div className="form-group">
-      <label htmlFor="email">Email</label>
+    <div className={forms.group}>
+      <label htmlFor="email" className={forms.label}>
+        Email
+      </label>
       <input
         id="email"
         type="email"
         name="email"
+        className={forms.control}
         value={member.email}
         onChange={handleEmailChange}
       />
