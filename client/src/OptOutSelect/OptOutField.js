@@ -1,7 +1,7 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
-import styles from "./OptOutSelect.module.css";
+import styles from "./OptOutSelect.module.scss";
 
 const ADD_OPT_OUT = gql`
   mutation AddOptOut($input: MemberInput!) {
@@ -9,33 +9,37 @@ const ADD_OPT_OUT = gql`
   }
 `;
 
-const OptOutField = ({ optOut, memberId: id, selected }) => {
-  const [addOptOut] = useMutation(ADD_OPT_OUT);
-  const dispatchOptOut = () =>
-    addOptOut({ variables: { input: { id, name: optOut.name } } });
+const OptOutField = forwardRef(
+  ({ item, memberId: id, selected, className, ...props }, ref) => {
+    const [addOptOut] = useMutation(ADD_OPT_OUT);
+    const dispatchOptOut = () =>
+      addOptOut({ variables: { input: { id, name: item.name } } });
 
-  const handleOptOutClick = () => {
-    dispatchOptOut();
-  };
+    const handleOptOutClick = () => {
+      dispatchOptOut();
+    };
 
-  const handleOptOutDown = ({ key }) => {
-    if (key === "Enter") dispatchOptOut();
-  };
+    const handleOptOutDown = ({ key }) => {
+      if (key === "Enter") dispatchOptOut();
+    };
 
-  return (
-    <li
-      role="option"
-      aria-selected={selected}
-      onClick={handleOptOutClick}
-      onKeyDown={handleOptOutDown}
-      className={styles.option}
-    >
-      {optOut.label}
-      {optOut.description && (
-        <small className={styles.description}>{optOut.description}</small>
-      )}
-    </li>
-  );
-};
+    return (
+      <li
+        {...props}
+        role="option"
+        aria-selected={selected}
+        onClick={handleOptOutClick}
+        onKeyDown={handleOptOutDown}
+        className={`${className} ${styles.option}`}
+        ref={ref}
+      >
+        {item.label}
+        {item.description && (
+          <small className={styles.description}>{item.description}</small>
+        )}
+      </li>
+    );
+  }
+);
 
 export default OptOutField;

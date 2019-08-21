@@ -1,10 +1,12 @@
+@import "./app-vars";
+
 html {
-  font-size: 14px;
+  font-size: floor($rem-size * 0.875);
   box-sizing: border-box;
 }
 @media screen and (min-width: 60rem) {
   html {
-    font-size: 16px;
+    font-size: $rem-size;
   }
 }
 
@@ -18,12 +20,16 @@ body {
   color: #333;
   font-size: 1rem;
   line-height: 1.6;
-  font-family: "Open Sans", sans-serif;
-  font-weight: 400;
+  font-family: $font-family;
+  font-weight: $font-weight;
+}
+
+strong {
+  font-weight: $font-weight-bold;
 }
 
 a {
-  color: #900028;
+  color: $primary-color;
   text-decoration: none;
 }
 
@@ -55,7 +61,7 @@ fieldset {
 h1,
 h2,
 h3 {
-  font-weight: 600;
+  font-weight: $font-weight-bold;
 }
 
 h1 {

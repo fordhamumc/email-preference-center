@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/react-hooks";
 import "shim-keyboard-event-key";
-import styles from "./OptOutSelect.module.css";
-import forms from "../defaults/forms.module.css";
+import styles from "./OptOutSelect.module.scss";
+import forms from "../Form/form.module.scss";
 import optOutOptions from "./optOutOptions";
 import TagButton from "../TagButton/TagButton";
 import OptOutList from "./OptOutList";
+import { isUnsubscribed } from "../UnsubscribeField";
+import { camelCase } from "../utils";
 
 const ADD_OPT_OUT = gql`
   mutation AddOptOut($input: MemberInput!) {
@@ -45,6 +47,7 @@ const OptOutSelect = ({ member }) => {
   const inputEl = useRef();
   const [searchInput, setSearchInput] = useState("");
   const [searchList, setSearchList] = useState([]);
+  const [searchListActive, setSearchListActive] = useState("");
   const [isListVisible, setIsListVisibible] = useState(false);
   useEffect(() => {
     setSearchList(getUnselected(member.optOuts));
@@ -54,6 +57,7 @@ const OptOutSelect = ({ member }) => {
   const [deleteOptOut] = useMutation(DELETE_OPT_OUT);
   const searchChange = value => {
     setSearchInput(value);
+    if (value.length) setIsListVisibible(true);
     setSearchList(
       getUnselected(member.optOuts).filter(item =>
         item.label.toLowerCase().includes(value.toLowerCase())
@@ -77,21 +81,46 @@ const OptOutSelect = ({ member }) => {
   const handleSearchDown = e => {
     const {
       key,
-      shiftKey,
       target,
       target: { value }
     } = e;
 
-    if (key === "Enter" || (key === "Tab" && !shiftKey)) {
-      e.preventDefault();
-      addOptOut({
-        variables: { input: { id: member.id, name: searchList[0].name } }
-      });
-      searchChange("");
-    }
-    if (key === "Backspace" && value.length === 0 && target.previousSibling) {
-      e.preventDefault();
-      target.previousSibling.lastChild.focus();
+    switch (key) {
+      case "Enter":
+        e.preventDefault();
+        addOptOut({
+          variables: { input: { id: member.id, name: searchListActive.name } }
+        });
+        searchChange("");
+        break;
+      case "ArrowDown":
+      case "ArrowUp":
+        let activeIndex = searchList.indexOf(searchListActive);
+        key === "ArrowDown" ? ++activeIndex : --activeIndex;
+        setIsListVisibible(activeIndex < 0 ? false : true);
+        if (activeIndex >= 0 || activeIndex < searchList.length) {
+          setSearchListActive(searchList[activeIndex]);
+        }
+        break;
+      case "Home":
+        setSearchListActive(searchList[0]);
+        break;
+      case "End":
+        setSearchListActive(searchList[searchList.length - 1]);
+        break;
+      case "Escape":
+        searchChange("");
+        setIsListVisibible(false);
+        setSearchListActive(null);
+        break;
+      case "Backspace":
+        if (value.length === 0 && target.previousSibling) {
+          e.preventDefault();
+          target.previousSibling.lastChild.focus();
+        }
+        break;
+      default:
+        break;
     }
   };
   const getRemoveClickHandler = optOut => {
@@ -103,7 +132,7 @@ const OptOutSelect = ({ member }) => {
       setFocus();
     };
   };
-
+  if (isUnsubscribed(member.status)) return null;
   return (
     <div className={forms.group}>
       <label
@@ -116,11 +145,14 @@ const OptOutSelect = ({ member }) => {
       <div>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions*/}
         <div
-          className={`${styles.input}`}
+          className={`${styles.input} ${
+            isListVisible ? styles.inputActive : ""
+          }`}
           onClick={setFocus}
           aria-expanded={isListVisible}
           aria-haspopup="listbox"
           aria-owns="optOutList"
+          aria-disabled={isUnsubscribed(member.status)}
         >
           {selected.map(optOut => (
             <TagButton
@@ -139,23 +171,28 @@ const OptOutSelect = ({ member }) => {
             name="optOutSearch"
             id="optOutSearch"
             value={searchInput}
-            disabled={["unsubscribed", "cleaned"].includes(member.status)}
             onChange={handleSearchChange}
             onKeyDown={handleSearchDown}
             onFocus={toggleList}
             onBlur={toggleList}
             aria-label="Search unsubscribe options"
+            aria-activedescendant={
+              searchListActive
+                ? camelCase(`optOut ${searchListActive.name}`)
+                : ""
+            }
             ref={inputEl}
           />
         </div>
-        <OptOutList
-          id="optOutList"
-          list={searchList}
-          memberId={member.id}
-          aria-labelledby="unsubscribeLabel"
-          aria-hidden={!isListVisible}
-          className={isListVisible ? "" : styles.hidden}
-        />
+        {isListVisible && (
+          <OptOutList
+            id="optOutList"
+            list={searchList}
+            memberId={member.id}
+            activeState={[searchListActive, setSearchListActive]}
+            aria-labelledby="unsubscribeLabel"
+          />
+        )}
       </div>
     </div>
   );

@@ -3,9 +3,9 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import ApolloClient from "apollo-boost";
 import { Router } from "@reach/router";
 import "normalize.css";
-import "./defaults/main.css";
-import PreferenceForm from "./PreferenceForm";
-import member from "./member";
+import "./app.scss";
+import PreferenceForm from "../PreferenceForm";
+import member from "../member";
 
 const client = new ApolloClient({
   uri: "/",

@@ -1,0 +1,48 @@
+@import "../App/app-vars";
+@import "../Form/form-vars";
+
+.button {
+  background: darken($form-control-background, 9%);
+  border-radius: $form-control-radius;
+  display: flex;
+  line-height: 1;
+  align-items: center;
+  margin: ($form-control-padding-vertical - 0.5)
+    ($form-control-padding-horizontal - 0.5);
+  transition: box-shadow $transition-timing;
+}
+
+.button:focus-within {
+  box-shadow: 0 0 0 2px $form-control-focus-color-alt;
+}
+
+.button:last-of-type {
+  margin-right: 0;
+}
+
+.text {
+  font-size: 0.8em;
+  padding: ($form-control-padding-vertical - 0.5)
+    ($form-control-padding-horizontal - 0.8)
+    ($form-control-padding-vertical - 0.5)
+    ($form-control-padding-horizontal - 0.5);
+}
+
+.close {
+  border: 0;
+  background: transparent;
+  font-size: 1.3em;
+  display: inline-block;
+  vertical-align: sub;
+  padding: ($form-control-padding-vertical - 0.5)
+    ($form-control-padding-horizontal - 0.55)
+    ($form-control-padding-vertical - 0.5)
+    ($form-control-padding-horizontal - 0.6);
+  transition: background $transition-timing;
+}
+
+.close:hover,
+.close:focus {
+  background: rgba(0, 0, 0, 0.1);
+  outline: none;
+}

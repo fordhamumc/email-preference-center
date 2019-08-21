@@ -1,0 +1,120 @@
+@import "./form-vars";
+@import "../App/app-vars";
+
+.group {
+  display: grid;
+  grid-template-columns: 9rem auto;
+  grid-column-gap: $form-group-gap-horizontal;
+  align-items: start;
+  max-width: 50rem;
+  margin: $form-group-gap-vertical auto;
+}
+
+.label {
+  font-weight: 600;
+  line-height: 1;
+  padding: $form-control-padding-vertical 0;
+}
+
+.toggleLabel {
+  composes: label;
+  padding-top: $form-toggle-size - 1;
+}
+
+.control {
+  border: 1px solid $form-control-border;
+  border-radius: $form-control-radius;
+  background: $form-control-background;
+  padding: $form-control-padding-vertical $form-control-padding-horizontal;
+  transition: box-shadow $transition-timing, border $transition-timing;
+}
+.control:focus {
+  border-bottom-color: $form-control-focus-color;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075),
+    0 1px 0px 0px $form-control-focus-color;
+  outline: 0;
+}
+
+.submitButton {
+  grid-column: 2;
+  justify-self: start;
+  padding: 0.4em 2em;
+  border-radius: 0.2rem;
+  letter-spacing: 0.03em;
+  display: inline-block;
+  text-align: center;
+  background: #900028;
+  color: #ffffff;
+  border: 1px solid #5d001a;
+  text-decoration: none;
+  transition: background $transition-timing, box-shadow $transition-timing;
+  white-space: pre-wrap;
+
+  &:hover {
+    background: darken(#900028, 7%);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px $form-control-focus-color;
+  }
+}
+
+.checkbox {
+  display: grid;
+  grid-template-columns: $form-toggle-size auto;
+  grid-column-gap: 0.5rem;
+  grid-column: 2;
+  align-items: center;
+}
+
+.checkbox:before {
+  content: "";
+  display: block;
+  grid-area: 1 / 1;
+  background-color: #fff;
+  border: 1px solid #eaedf0;
+  border-radius: 0.25rem;
+  width: $form-toggle-size;
+  height: $form-toggle-size;
+  user-select: none;
+  outline: 0;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+  transition: background $transition-timing, box-shadow $transition-timing;
+}
+
+.checkbox:after {
+  content: "";
+  width: 0.4rem;
+  height: 0.7rem;
+  grid-area: 1 / 1;
+  justify-self: center;
+  transform: rotate(45deg) translate3d(-1px, -1px, 0);
+  transform-origin: center;
+  border: 0 solid transparent;
+  border-width: 0 3px 3px 0;
+}
+
+.checkboxActive:before {
+  border-color: #5180a0;
+  background-color: #5180a0;
+}
+
+.checkboxActive:after {
+  border-color: #fff;
+}
+
+.checkboxFocused:before {
+  box-shadow: 0 0 0 2px $form-control-focus-color;
+}
+
+.checkboxActive.checkboxFocused:before {
+  box-shadow: 0 0 0 2px $form-control-focus-color-alt;
+}
+
+.checkboxInput {
+  grid-area: 1 / 1;
+  height: $form-toggle-size;
+  width: $form-toggle-size;
+  opacity: 0;
+}

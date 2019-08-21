@@ -1,17 +1,42 @@
-import React from "react";
-import styles from "./OptOutSelect.module.css";
+import React, { useEffect, useRef } from "react";
+import styles from "./OptOutSelect.module.scss";
 import OptOutField from "./OptOutField";
+import { camelCase } from "../utils";
 
-const OptOutList = ({ list, memberId, className, ...props }) => {
+const OptOutList = ({ list, activeState, memberId, className, ...props }) => {
+  const [active, setActive] = activeState;
+  const activeEl = useRef();
+  useEffect(() => {
+    if (list.length && !list.includes(active)) setActive(list[0]);
+  }, [list, active, setActive]);
+
+  useEffect(() => {
+    if (active) {
+      activeEl.current.scrollIntoView(false);
+    }
+  }, [active]);
+
+  const getOptionHoverHandler = item => {
+    return () => setActive(item);
+  };
+
   return (
     <ul
-      tabIndex="-1"
+      {...props}
+      tabIndex="1"
       role="listbox"
       className={[styles.list, className].join(" ")}
-      {...props}
     >
-      {list.map(optOut => (
-        <OptOutField key={optOut.name} optOut={optOut} memberId={memberId} />
+      {list.map(item => (
+        <OptOutField
+          id={camelCase(`optOut ${item.name}`)}
+          key={item.name}
+          item={item}
+          memberId={memberId}
+          className={active === item ? styles.optionActive : ""}
+          onMouseEnter={getOptionHoverHandler(item)}
+          ref={active === item ? activeEl : null}
+        />
       ))}
     </ul>
   );

@@ -2,9 +2,10 @@ import React from "react";
 import OptOutSelect, { optOutUpdateFormat } from "../OptOutSelect";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
-import EmailField from "../EmailField/EmailField";
 import { navigate } from "@reach/router";
-import UnsubscribeField from "../UnsubscribeField/UnsubscribeField";
+import forms from "../Form/form.module.scss";
+import EmailField from "../EmailField";
+import UnsubscribeField from "../UnsubscribeField";
 
 const MEMBER_FRAGMENT = gql`
   fragment memberFields on Member {
@@ -88,7 +89,13 @@ const PreferenceForm = ({ email, recipientId }) => {
       <EmailField member={data.member} />
       <OptOutSelect member={data.member} />
       <UnsubscribeField member={data.member} />
-      <input type="submit" value="submit" />
+      <div className={forms.group}>
+        <input
+          type="submit"
+          value="Update Your Preferences"
+          className={forms.submitButton}
+        />
+      </div>
       {mutationLoading && <p>Updating...</p>}
       {mutationError && <p>Please try again.</p>}
       {mutationData && <p>Success</p>}

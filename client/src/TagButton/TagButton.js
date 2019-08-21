@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./TagButton.module.css";
+import styles from "./TagButton.module.scss";
 
 const TagButton = ({ onClick, label, ...props }) => {
   const handleCloseDown = e => {
