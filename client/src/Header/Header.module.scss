@@ -1,0 +1,19 @@
+@import "../App/app-vars";
+
+.header {
+  margin-bottom: $container-bumper-vertical * 2;
+}
+.logo {
+  width: 11rem;
+}
+.intro {
+  background: #f5f5f5;
+}
+.container {
+  max-width: $container-inner-size;
+  margin: 0 auto;
+  padding: $container-bumper-vertical $container-bumper-horizontal;
+}
+.title {
+  margin-top: 0;
+}

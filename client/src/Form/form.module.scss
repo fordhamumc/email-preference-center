@@ -1,17 +1,25 @@
 @import "./form-vars";
 @import "../App/app-vars";
 
-.group {
-  display: grid;
-  grid-template-columns: 9rem auto;
-  grid-column-gap: $form-group-gap-horizontal;
-  align-items: start;
+.container {
   max-width: 50rem;
   margin: $form-group-gap-vertical auto;
 }
 
+.group {
+  composes: container;
+  display: grid;
+  grid-column-gap: $form-group-gap-horizontal;
+  align-items: start;
+
+  @media screen and (min-width: 37rem) {
+    grid-template-columns: 9rem auto;
+  }
+}
+
 .label {
   font-weight: 600;
+  font-size: 1.1em;
   line-height: 1;
   padding: $form-control-padding-vertical 0;
 }
@@ -35,10 +43,16 @@
   outline: 0;
 }
 
+.submitButtonContainer {
+  @media screen and (min-width: 37rem) {
+    grid-column: 2;
+  }
+}
+
 .submitButton {
-  grid-column: 2;
   justify-self: start;
-  padding: 0.4em 2em;
+  margin-top: ($container-bumper-vertical - 0.5);
+  padding: $form-button-padding-vertical $form-button-padding-horizontal;
   border-radius: 0.2rem;
   letter-spacing: 0.03em;
   display: inline-block;
@@ -60,12 +74,19 @@
   }
 }
 
+.message {
+  composes: container;
+}
+
 .checkbox {
   display: grid;
   grid-template-columns: $form-toggle-size auto;
   grid-column-gap: 0.5rem;
-  grid-column: 2;
   align-items: center;
+
+  @media screen and (min-width: 37rem) {
+    grid-column: 2;
+  }
 }
 
 .checkbox:before {

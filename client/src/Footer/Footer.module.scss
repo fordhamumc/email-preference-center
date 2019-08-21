@@ -1,0 +1,15 @@
+@import "../App/app-vars";
+
+.footer {
+  border-top: 1px solid darken(#f5f5f5, 10%);
+  color: lighten($text-color, 25%);
+  font-size: 0.85em;
+  margin-top: ($container-bumper-vertical * 2);
+  padding-top: ($container-bumper-vertical * 0.5);
+  text-align: center;
+}
+.container {
+  max-width: $container-inner-size * 0.85;
+  margin: 0 auto;
+  padding: $container-bumper-vertical $container-bumper-horizontal;
+}

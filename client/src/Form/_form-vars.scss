@@ -7,4 +7,6 @@ $form-control-focus-color-alt: darken($form-control-border, 50%);
 $form-control-padding-horizontal: 1rem;
 $form-control-padding-vertical: 0.7rem;
 $form-control-radius: 0.2rem;
+$form-button-padding-horizontal: $form-control-padding-horizontal;
+$form-button-padding-vertical: $form-control-padding-vertical;
 $form-toggle-size: 1.2rem;

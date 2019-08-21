@@ -17,7 +17,7 @@ html {
 }
 
 body {
-  color: #333;
+  color: $text-color;
   font-size: 1rem;
   line-height: 1.6;
   font-family: $font-family;
@@ -65,7 +65,7 @@ h3 {
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 1.75em;
 }
 
 h2 {
@@ -83,8 +83,13 @@ html [type="button"] {
   cursor: pointer;
 }
 
-.container {
-  max-width: 90rem;
+.wrapper {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  max-width: $container-size;
   margin: 0 auto;
-  padding: 0 1rem;
+}
+.container {
+  padding: 0 $container-bumper-horizontal;
 }

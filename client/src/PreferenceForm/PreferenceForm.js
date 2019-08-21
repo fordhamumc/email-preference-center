@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import OptOutSelect, { optOutUpdateFormat } from "../OptOutSelect";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
@@ -38,7 +38,7 @@ const UPDATE_MEMBER = gql`
   ${MEMBER_FRAGMENT}
 `;
 
-const PreferenceForm = ({ email, recipientId }) => {
+const PreferenceForm = ({ email, recipientId, setMessage }) => {
   const input = { recipientId };
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) input.email = email;
 
@@ -51,7 +51,7 @@ const PreferenceForm = ({ email, recipientId }) => {
     { loading: mutationLoading, error: mutationError, data: mutationData }
   ] = useMutation(UPDATE_MEMBER, {
     onCompleted({ updateMember }) {
-      navigate(`/${updateMember.email}/${recipientId}`);
+      navigate(`/${updateMember.email}/${recipientId ? recipientId : ""}`);
     }
   });
 
@@ -73,32 +73,48 @@ const PreferenceForm = ({ email, recipientId }) => {
     updateMember({ variables: { input } });
   };
 
-  if (loading) return <p>Loading preferences...</p>;
-  if (error)
-    return (
-      <p>
-        We're having trouble finding your account. Please contact{" "}
-        <a href="mailto:emailmarketing@fordham.edu">
-          emailmarketing@fordham.edu
-        </a>{" "}
-        to update your email preferences.
-      </p>
-    );
+  useEffect(() => {
+    const message = { title: "", content: "" };
+    console.log("messaging");
+    if (error) {
+      message.title = "We're having trouble finding your account.";
+      message.content = (
+        <p>
+          Please contact{" "}
+          <a href="mailto:emailmarketing@fordham.edu">
+            emailmarketing@fordham.edu
+          </a>{" "}
+          to update your email preferences.
+        </p>
+      );
+    } else if (loading) {
+      message.title = "Loading preferences...";
+      message.content = "";
+    } else {
+      message.title = "Set Your Email Preferences";
+      message.content =
+        "Fordham University will use the information you provide on this form to stay in touch with you. Please use the options below to customize the types of emails you receive from Fordham.";
+    }
+    setMessage(message);
+  }, [setMessage, error, loading]);
+
+  if (error || loading) return null;
   return (
     <form onSubmit={handleFormSubmit}>
       <EmailField member={data.member} />
       <OptOutSelect member={data.member} />
       <UnsubscribeField member={data.member} />
       <div className={forms.group}>
-        <input
-          type="submit"
-          value="Update Your Preferences"
-          className={forms.submitButton}
-        />
+        <div className={forms.submitButtonContainer}>
+          <input
+            type="submit"
+            value={mutationLoading ? `Updating...` : "Update Your Preferences"}
+            className={forms.submitButton}
+          />
+          {mutationError && <p>Please try again.</p>}
+          {mutationData && <p>Success</p>}
+        </div>
       </div>
-      {mutationLoading && <p>Updating...</p>}
-      {mutationError && <p>Please try again.</p>}
-      {mutationData && <p>Success</p>}
     </form>
   );
 };
