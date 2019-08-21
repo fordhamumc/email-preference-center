@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/react-hooks";
+import "shim-keyboard-event-key";
 import styles from "./OptOutSelect.module.css";
 import forms from "../defaults/forms.module.css";
 import optOutOptions from "./optOutOptions";
 import TagButton from "../TagButton/TagButton";
-import OptOutField from "./OptOutField";
-import { WSAEWOULDBLOCK } from "constants";
+import OptOutList from "./OptOutList";
 
 const ADD_OPT_OUT = gql`
   mutation AddOptOut($input: MemberInput!) {
@@ -31,7 +31,6 @@ const getUnselected = optOuts =>
 const calcInputWidth = elem => {
   const tmp = document.createElement("div");
   tmp.textContent = [...elem.value].map(l => l + "\u200B").join("");
-  console.log(tmp.textContent);
   tmp.className = elem.className;
   tmp.style.width = "auto";
   tmp.style.whiteSpace = "pre-wrap";
@@ -46,6 +45,7 @@ const OptOutSelect = ({ member }) => {
   const inputEl = useRef();
   const [searchInput, setSearchInput] = useState("");
   const [searchList, setSearchList] = useState([]);
+  const [isListVisible, setIsListVisibible] = useState(false);
   useEffect(() => {
     setSearchList(getUnselected(member.optOuts));
   }, [member.optOuts]);
@@ -61,6 +61,15 @@ const OptOutSelect = ({ member }) => {
     );
   };
 
+  const toggleList = ({ type }) => {
+    let newState = !isListVisible;
+    if (type === "focus") newState = true;
+    if (type === "blur") newState = false;
+    setIsListVisibible(newState);
+  };
+  const setFocus = () => {
+    inputEl.current.focus();
+  };
   const handleSearchChange = ({ target }) => {
     target.style.width = `${calcInputWidth(target)}px`;
     searchChange(target.value);
@@ -68,25 +77,22 @@ const OptOutSelect = ({ member }) => {
   const handleSearchDown = e => {
     const {
       key,
+      shiftKey,
+      target,
       target: { value }
     } = e;
-    if (key === "Tab" || key === "Enter") {
+
+    if (key === "Enter" || (key === "Tab" && !shiftKey)) {
       e.preventDefault();
       addOptOut({
         variables: { input: { id: member.id, name: searchList[0].name } }
       });
       searchChange("");
     }
-    if (key === "Backspace" && value.length === 0) {
-      deleteOptOut({
-        variables: {
-          input: { id: member.id, name: selected[selected.length - 1].name }
-        }
-      });
+    if (key === "Backspace" && value.length === 0 && target.previousSibling) {
+      e.preventDefault();
+      target.previousSibling.lastChild.focus();
     }
-  };
-  const setFocus = () => {
-    inputEl.current.focus();
   };
   const getRemoveClickHandler = optOut => {
     return e => {
@@ -94,6 +100,7 @@ const OptOutSelect = ({ member }) => {
       deleteOptOut({
         variables: { input: { id: member.id, name: optOut.name } }
       });
+      setFocus();
     };
   };
 
@@ -108,12 +115,20 @@ const OptOutSelect = ({ member }) => {
       </label>
       <div>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions*/}
-        <div className={`${styles.input}`} onClick={setFocus}>
+        <div
+          className={`${styles.input}`}
+          onClick={setFocus}
+          aria-expanded={isListVisible}
+          aria-haspopup="listbox"
+          aria-owns="optOutList"
+        >
           {selected.map(optOut => (
             <TagButton
               key={optOut.name}
               label={optOut.label}
               onClick={getRemoveClickHandler(optOut)}
+              onFocus={toggleList}
+              onBlur={toggleList}
             />
           ))}
           <input
@@ -127,15 +142,20 @@ const OptOutSelect = ({ member }) => {
             disabled={["unsubscribed", "cleaned"].includes(member.status)}
             onChange={handleSearchChange}
             onKeyDown={handleSearchDown}
+            onFocus={toggleList}
+            onBlur={toggleList}
             aria-label="Search unsubscribe options"
             ref={inputEl}
           />
         </div>
-        <ul tabIndex="-1" role="listbox" aria-labelledby="unsubscribeLabel">
-          {searchList.map(optOut => (
-            <OptOutField key={optOut.name} optOut={optOut} member={member} />
-          ))}
-        </ul>
+        <OptOutList
+          id="optOutList"
+          list={searchList}
+          memberId={member.id}
+          aria-labelledby="unsubscribeLabel"
+          aria-hidden={!isListVisible}
+          className={isListVisible ? "" : styles.hidden}
+        />
       </div>
     </div>
   );

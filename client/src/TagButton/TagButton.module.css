@@ -7,13 +7,17 @@
   margin: 0.2rem 0.5rem;
 }
 
+.button:focus-within {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
+}
+
 .button:last-of-type {
   margin-right: 0;
 }
 
 .text {
   font-size: 0.8em;
-  padding: 0.2rem 0 0.2rem 0.5rem;
+  padding: 0.2rem 0.2rem 0.2rem 0.5rem;
 }
 
 .close {
@@ -22,5 +26,12 @@
   font-size: 1.3em;
   display: inline-block;
   vertical-align: sub;
-  padding: 0.2rem 0.5rem;
+  padding: 0.2rem 0.45rem 0.2rem 0.4rem;
+  transition: background 0.2s;
+}
+
+.close:hover,
+.close:focus {
+  background: rgba(0, 0, 0, 0.1);
+  outline: none;
 }
