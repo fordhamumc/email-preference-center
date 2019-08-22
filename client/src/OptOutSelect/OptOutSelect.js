@@ -35,9 +35,8 @@ const calcInputWidth = elem => {
   tmp.textContent = [...elem.value].map(l => l + "\u200B").join("");
   tmp.className = elem.className;
   tmp.style.width = "auto";
-  tmp.style.whiteSpace = "pre-wrap";
   elem.parentNode.append(tmp);
-  const tmpWidth = tmp.offsetWidth;
+  const tmpWidth = tmp.offsetWidth + 8;
   tmp.remove();
   return tmpWidth;
 };
@@ -45,6 +44,7 @@ const calcInputWidth = elem => {
 const OptOutSelect = ({ member, disabled }) => {
   const selected = member.optOuts.map(getOptOutDetails).filter(Boolean);
   const inputEl = useRef();
+  const searchListEl = useRef();
   const [searchInput, setSearchInput] = useState("");
   const [searchList, setSearchList] = useState([]);
   const [searchListActive, setSearchListActive] = useState("");
@@ -65,10 +65,13 @@ const OptOutSelect = ({ member, disabled }) => {
     );
   };
 
-  const toggleList = ({ type }) => {
+  const toggleList = ({ type, relatedTarget }) => {
     let newState = !isListVisible;
-    if (type === "focus") newState = true;
-    if (type === "blur") newState = false;
+    if (type === "focus" || relatedTarget === searchListEl.current) {
+      newState = true;
+    } else if (type === "blur") {
+      newState = false;
+    }
     setIsListVisibible(newState);
   };
   const setFocus = () => {
@@ -191,8 +194,10 @@ const OptOutSelect = ({ member, disabled }) => {
             id="optOutList"
             list={searchList}
             memberId={member.id}
+            setFocus={setFocus}
             activeState={[searchListActive, setSearchListActive]}
             aria-labelledby="unsubscribeLabel"
+            ref={searchListEl}
           />
         )}
       </div>

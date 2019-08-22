@@ -8,7 +8,11 @@ const Header = ({ message }) => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <img src="/fordham.png" alt="Fordham" className={styles.logo} />
+        <img
+          src={`${process.env.REACT_APP_BASE_PATH || ""}/fordham.png`}
+          alt="Fordham"
+          className={styles.logo}
+        />
       </div>
       {(message.title || message.content) && (
         <div className={styles.intro}>

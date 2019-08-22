@@ -52,7 +52,11 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
     { loading: mutationLoading, error: mutationError, data: mutationData }
   ] = useMutation(UPDATE_MEMBER, {
     onCompleted({ updateMember }) {
-      navigate(`/${updateMember.email}/${recipientId ? recipientId : ""}`);
+      navigate(
+        `${process.env.REACT_APP_BASE_PATH || ""}/${updateMember.email}/${
+          recipientId ? recipientId : ""
+        }`
+      );
     }
   });
 
@@ -126,7 +130,7 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
 
   const [originalStatus, setOriginalStatus] = useState("");
   useEffect(() => {
-    if (data.member && !originalStatus) {
+    if (data && data.member && !originalStatus) {
       setOriginalStatus(data.member.status);
     }
     if (mutationData && mutationData.updateMember) {

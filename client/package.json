@@ -8,7 +8,10 @@
   "private": true,
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "clean": "rimraf dist",
+    "build": "sh -ac '. .env.${REACT_APP_ENV}; yarn clean && react-scripts build && mkdir -p dist && mv build dist/${REACT_APP_ENV} || move build dist/${REACT_APP_ENV}'",
+    "build:dev": "REACT_APP_ENV=dev npm run build",
+    "build:prod": "REACT_APP_ENV=prod npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -30,7 +33,9 @@
     "not op_mini all"
   ],
   "proxy": "http://localhost:4000/",
+  "homepage": ".",
   "devDependencies": {
-    "node-sass": "^4.12.0"
+    "node-sass": "^4.12.0",
+    "rimraf": "^3.0.0"
   }
 }

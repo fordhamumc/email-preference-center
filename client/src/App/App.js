@@ -10,7 +10,10 @@ import Header from "../Header";
 import Footer from "../Footer";
 
 const client = new ApolloClient({
-  uri: "/",
+  uri:
+    process.env.NODE_ENV === "production"
+      ? process.env.REACT_APP_GRAPHQL_URI
+      : "/",
   resolvers: [member.resolvers]
 });
 
@@ -25,7 +28,7 @@ const App = () => {
       <div className="wrapper">
         <Header message={message} />
         <div className="container">
-          <Router>
+          <Router basepath={process.env.REACT_APP_BASE_PATH || ""}>
             <PreferenceForm path="/:email" setMessage={setMessage} />
             <PreferenceForm
               path="/:email/:recipientId"

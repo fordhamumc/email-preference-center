@@ -2,8 +2,10 @@ coverage
 node_modules
 *.log
 *.error
+.htaccess
 .DS_Store
-.env
+.env*
 .webpack
+.vscode
 dist
 build
