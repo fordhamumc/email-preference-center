@@ -17,6 +17,7 @@ const MEMBER_FRAGMENT = gql`
     optOuts
     gdpr
     current
+    recipientId
   }
 `;
 
@@ -62,7 +63,9 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
     setEditing(false);
     const { id, email, status, optOuts } = data.member;
 
-    // still need to add recipientId and status
+    // if recipient id is not provided get it from the data object
+    recipientId = recipientId || data.member.recipientId;
+
     const input = {
       id,
       recipientId,
