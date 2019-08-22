@@ -10,13 +10,12 @@ const ADD_OPT_OUT = gql`
 `;
 
 const OptOutField = forwardRef(
-  ({ item, memberId: id, selected, className, setFocus, ...props }, ref) => {
+  ({ item, memberId: id, selected, className, ...props }, ref) => {
     const [addOptOut] = useMutation(ADD_OPT_OUT);
     const dispatchOptOut = () =>
       addOptOut({ variables: { input: { id, name: item.name } } });
 
     const handleOptOutClick = () => {
-      setFocus();
       dispatchOptOut();
     };
 

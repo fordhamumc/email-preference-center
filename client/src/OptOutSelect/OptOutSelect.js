@@ -65,21 +65,25 @@ const OptOutSelect = ({ member, disabled }) => {
     );
   };
 
-  const toggleList = ({ type, relatedTarget }) => {
-    let newState = !isListVisible;
-    if (type === "focus" || relatedTarget === searchListEl.current) {
-      newState = true;
-    } else if (type === "blur") {
-      newState = false;
-    }
-    setIsListVisibible(newState);
+  const toggleList = () => {
+    setIsListVisibible(!isListVisible);
   };
   const setFocus = () => {
     inputEl.current.focus();
   };
+
+  const handleListToggleClick = e => {
+    e.preventDefault();
+    setFocus();
+    toggleList();
+  };
+
   const handleSearchChange = ({ target }) => {
     target.style.width = `${calcInputWidth(target)}px`;
     searchChange(target.value);
+  };
+  const handleSearchFocus = () => {
+    setIsListVisibible(true);
   };
   const handleSearchDown = e => {
     const {
@@ -148,55 +152,65 @@ const OptOutSelect = ({ member, disabled }) => {
       <div>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions*/}
         <div
-          className={`${styles.input} ${
-            isListVisible ? styles.inputActive : ""
-          }`}
-          onClick={setFocus}
+          className={isListVisible ? styles.selectActive : styles.select}
           aria-expanded={isListVisible}
           aria-haspopup="listbox"
           aria-owns="optOutList"
           aria-disabled={disabled || isUnsubscribed(member.status)}
         >
-          {selected.map(optOut => (
-            <TagButton
-              key={optOut.name}
-              label={optOut.label}
-              onClick={getRemoveClickHandler(optOut)}
-              onFocus={toggleList}
-              onBlur={toggleList}
+          <div className={styles.selectContainer} onClick={setFocus}>
+            {selected.map(optOut => (
+              <TagButton
+                key={optOut.name}
+                label={optOut.label}
+                onClick={getRemoveClickHandler(optOut)}
+                disabled={disabled || isUnsubscribed(member.status)}
+              />
+            ))}
+            <input
+              autoCapitalize="none"
+              autoComplete="off"
+              autoCorrect="off"
+              className={styles.search}
+              name="optOutSearch"
+              id="optOutSearch"
+              value={searchInput}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchDown}
+              onFocus={handleSearchFocus}
               disabled={disabled || isUnsubscribed(member.status)}
+              aria-label="Search unsubscribe options"
+              aria-activedescendant={
+                searchListActive
+                  ? camelCase(`optOut ${searchListActive.name}`)
+                  : ""
+              }
+              ref={inputEl}
             />
-          ))}
-          <input
-            autoCapitalize="none"
-            autoComplete="off"
-            autoCorrect="off"
-            className={styles.inputText}
-            name="optOutSearch"
-            id="optOutSearch"
-            value={searchInput}
-            onChange={handleSearchChange}
-            onKeyDown={handleSearchDown}
-            onFocus={toggleList}
-            onBlur={toggleList}
-            disabled={disabled || isUnsubscribed(member.status)}
-            aria-label="Search unsubscribe options"
-            aria-activedescendant={
-              searchListActive
-                ? camelCase(`optOut ${searchListActive.name}`)
-                : ""
-            }
-            ref={inputEl}
-          />
+          </div>
+          <button
+            className={styles.dropdownIndicator}
+            onClick={handleListToggleClick}
+          >
+            <svg
+              viewBox="0 0 20 20"
+              role="presentation"
+              alt=""
+              className={styles.dropdownIcon}
+            >
+              <path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z" />
+            </svg>
+          </button>
         </div>
         {isListVisible && (
           <OptOutList
             id="optOutList"
             list={searchList}
             memberId={member.id}
-            setFocus={setFocus}
             activeState={[searchListActive, setSearchListActive]}
             aria-labelledby="unsubscribeLabel"
+            onTouchEnd={setFocus}
+            onClick={setFocus}
             ref={searchListEl}
           />
         )}

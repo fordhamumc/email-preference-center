@@ -140,30 +140,32 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
 
   if (error || loading) return null;
   return (
-    <form
-      onSubmit={handleFormSubmit}
-      onClick={handleFormFocus}
-      onFocus={handleFormFocus}
-    >
-      <EmailField member={data.member} disabled={mutationLoading} />
-      <OptOutSelect member={data.member} disabled={mutationLoading} />
-      <UnsubscribeField
-        member={data.member}
-        disabled={mutationLoading}
-        originalStatus={originalStatus}
-      />
-      <div className={forms.group}>
-        <div className={forms.submitButtonContainer}>
-          <input
-            type="submit"
-            value={submitButton.text}
-            disabled={mutationLoading || (mutationData && !editing)}
-            className={submitButton.className}
-          />
-          {mutationError && <p>Please try again.</p>}
+    <div>
+      <form
+        onSubmit={handleFormSubmit}
+        onClick={handleFormFocus}
+        onFocus={handleFormFocus}
+      >
+        <EmailField member={data.member} disabled={mutationLoading} />
+        <OptOutSelect member={data.member} disabled={mutationLoading} />
+        <UnsubscribeField
+          member={data.member}
+          disabled={mutationLoading}
+          originalStatus={originalStatus}
+        />
+        <div className={forms.group}>
+          <div className={forms.submitButtonContainer}>
+            <input
+              type="submit"
+              value={submitButton.text}
+              disabled={mutationLoading || (mutationData && !editing)}
+              className={submitButton.className}
+            />
+            {mutationError && <p>Please try again.</p>}
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 

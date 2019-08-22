@@ -4,7 +4,7 @@ import OptOutField from "./OptOutField";
 import { camelCase } from "../utils";
 
 const OptOutList = forwardRef(
-  ({ list, activeState, memberId, className, setFocus, ...props }, ref) => {
+  ({ list, activeState, memberId, className, ...props }, ref) => {
     const [active, setActive] = activeState;
     const activeEl = useRef();
     useEffect(() => {
@@ -40,7 +40,6 @@ const OptOutList = forwardRef(
             memberId={memberId}
             className={active === item ? styles.optionActive : ""}
             onMouseEnter={getOptionHoverHandler(item)}
-            setFocus={setFocus}
             ref={active === item ? activeEl : null}
           />
         ))}
