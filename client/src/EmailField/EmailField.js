@@ -10,7 +10,7 @@ const SET_EMAIL = gql`
   }
 `;
 
-const EmailField = ({ member }) => {
+const EmailField = ({ member, disabled, ...props }) => {
   const [setEmail] = useMutation(SET_EMAIL);
   const handleEmailChange = e =>
     setEmail({
@@ -24,13 +24,14 @@ const EmailField = ({ member }) => {
         Email
       </label>
       <input
+        {...props}
         id="email"
         type="email"
         name="email"
         className={forms.control}
         value={member.email}
         onChange={handleEmailChange}
-        disabled={isUnsubscribed(member.status)}
+        disabled={disabled || isUnsubscribed(member.status)}
         title={
           isUnsubscribed(member.status)
             ? "Please resubscribe before updating your email address."

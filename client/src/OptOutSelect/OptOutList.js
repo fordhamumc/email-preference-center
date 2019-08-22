@@ -12,7 +12,7 @@ const OptOutList = ({ list, activeState, memberId, className, ...props }) => {
 
   useEffect(() => {
     if (active) {
-      activeEl.current.scrollIntoView(false);
+      activeEl.current.scrollIntoView({ block: "nearest" });
     }
   }, [active]);
 
@@ -27,6 +27,9 @@ const OptOutList = ({ list, activeState, memberId, className, ...props }) => {
       role="listbox"
       className={[styles.list, className].join(" ")}
     >
+      {list.length === 0 && (
+        <li className={styles.optionEmpty}>Nothing matches your search.</li>
+      )}
       {list.map(item => (
         <OptOutField
           id={camelCase(`optOut ${item.name}`)}

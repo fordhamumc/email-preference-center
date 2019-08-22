@@ -83,6 +83,13 @@ html [type="button"] {
   cursor: pointer;
 }
 
+[type="submit"]:disabled,
+[type="reset"]:disabled,
+button:disabled,
+html [type="button"]:disabled {
+  cursor: not-allowed;
+}
+
 .wrapper {
   display: grid;
   grid-template-rows: auto 1fr auto;

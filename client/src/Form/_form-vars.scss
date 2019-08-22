@@ -1,12 +1,18 @@
+@import "../App/app-vars";
+
 $form-group-gap-horizontal: 2rem;
 $form-group-gap-vertical: 1.5rem;
 $form-control-background: #f5f5f5;
 $form-control-border: #eaeae6;
+$form-control-disabled-text: lighten($text-color, 30%);
 $form-control-focus-color: #5180a0;
 $form-control-focus-color-alt: darken($form-control-border, 50%);
 $form-control-padding-horizontal: 1rem;
 $form-control-padding-vertical: 0.7rem;
 $form-control-radius: 0.2rem;
+$form-button-submit-background: #5180a0;
+$form-button-loading-background: #5180a0;
+$form-button-success-background: #00bf9c;
 $form-button-padding-horizontal: $form-control-padding-horizontal;
 $form-button-padding-vertical: $form-control-padding-vertical;
 $form-toggle-size: 1.2rem;

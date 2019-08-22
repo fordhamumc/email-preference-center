@@ -42,7 +42,7 @@ const calcInputWidth = elem => {
   return tmpWidth;
 };
 
-const OptOutSelect = ({ member }) => {
+const OptOutSelect = ({ member, disabled }) => {
   const selected = member.optOuts.map(getOptOutDetails).filter(Boolean);
   const inputEl = useRef();
   const [searchInput, setSearchInput] = useState("");
@@ -152,7 +152,7 @@ const OptOutSelect = ({ member }) => {
           aria-expanded={isListVisible}
           aria-haspopup="listbox"
           aria-owns="optOutList"
-          aria-disabled={isUnsubscribed(member.status)}
+          aria-disabled={disabled || isUnsubscribed(member.status)}
         >
           {selected.map(optOut => (
             <TagButton
@@ -161,6 +161,7 @@ const OptOutSelect = ({ member }) => {
               onClick={getRemoveClickHandler(optOut)}
               onFocus={toggleList}
               onBlur={toggleList}
+              disabled={disabled || isUnsubscribed(member.status)}
             />
           ))}
           <input
@@ -175,6 +176,7 @@ const OptOutSelect = ({ member }) => {
             onKeyDown={handleSearchDown}
             onFocus={toggleList}
             onBlur={toggleList}
+            disabled={disabled || isUnsubscribed(member.status)}
             aria-label="Search unsubscribe options"
             aria-activedescendant={
               searchListActive

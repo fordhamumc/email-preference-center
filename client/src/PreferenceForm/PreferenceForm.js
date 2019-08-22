@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import OptOutSelect, { optOutUpdateFormat } from "../OptOutSelect";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
@@ -55,15 +55,19 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
     }
   });
 
+  const [editing, setEditing] = useState(true);
+
   const handleFormSubmit = e => {
     e.preventDefault();
-    const { id, email, optOuts } = data.member;
+    setEditing(false);
+    const { id, email, status, optOuts } = data.member;
 
     // still need to add recipientId and status
     const input = {
       id,
       recipientId,
       email,
+      status,
       optOuts: optOutUpdateFormat(optOuts)
     };
 
@@ -72,10 +76,12 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
 
     updateMember({ variables: { input } });
   };
+  const handleFormFocus = e => {
+    setEditing(true);
+  };
 
   useEffect(() => {
     const message = { title: "", content: "" };
-    console.log("messaging");
     if (error) {
       message.title = "We're having trouble finding your account.";
       message.content = (
@@ -98,21 +104,56 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
     setMessage(message);
   }, [setMessage, error, loading]);
 
+  const [submitButton, setSubmitButton] = useState({});
+  useEffect(() => {
+    const button = {
+      className: forms.submitButton,
+      text: "Update Your Preferences"
+    };
+    if (mutationLoading) {
+      button.className = forms.submitButtonLoading;
+      button.text = "Updating...";
+    }
+    if (mutationData && !editing) {
+      button.className = forms.submitButtonSuccess;
+      button.text = "Success!";
+    }
+    setSubmitButton(button);
+  }, [mutationLoading, mutationData, editing]);
+
+  const [originalStatus, setOriginalStatus] = useState("");
+  useEffect(() => {
+    if (data.member && !originalStatus) {
+      setOriginalStatus(data.member.status);
+    }
+    if (mutationData && mutationData.updateMember) {
+      setOriginalStatus(mutationData.updateMember.status);
+    }
+  }, [data, mutationData, originalStatus]);
+
   if (error || loading) return null;
   return (
-    <form onSubmit={handleFormSubmit}>
-      <EmailField member={data.member} />
-      <OptOutSelect member={data.member} />
-      <UnsubscribeField member={data.member} />
+    <form
+      onSubmit={handleFormSubmit}
+      onClick={handleFormFocus}
+      onFocus={handleFormFocus}
+    >
+      <EmailField member={data.member} disabled={mutationLoading} />
+      <OptOutSelect member={data.member} disabled={mutationLoading} />
+      <UnsubscribeField
+        member={data.member}
+        disabled={mutationLoading}
+        originalStatus={originalStatus}
+      />
       <div className={forms.group}>
         <div className={forms.submitButtonContainer}>
           <input
             type="submit"
-            value={mutationLoading ? `Updating...` : "Update Your Preferences"}
-            className={forms.submitButton}
+            value={submitButton.text}
+            disabled={mutationLoading || (mutationData && !editing)}
+            className={submitButton.className}
           />
           {mutationError && <p>Please try again.</p>}
-          {mutationData && <p>Success</p>}
         </div>
       </div>
     </form>

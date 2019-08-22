@@ -49,7 +49,7 @@
   }
 }
 
-.submitButton {
+.button {
   justify-self: start;
   margin-top: ($container-bumper-vertical - 0.5);
   padding: $form-button-padding-vertical $form-button-padding-horizontal;
@@ -57,21 +57,40 @@
   letter-spacing: 0.03em;
   display: inline-block;
   text-align: center;
-  background: #900028;
-  color: #ffffff;
-  border: 1px solid #5d001a;
   text-decoration: none;
   transition: background $transition-timing, box-shadow $transition-timing;
   white-space: pre-wrap;
-
-  &:hover {
-    background: darken(#900028, 7%);
-  }
 
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px $form-control-focus-color;
   }
+}
+
+.submitButton {
+  composes: button;
+  background: $form-button-submit-background;
+  color: #ffffff;
+  border: 1px solid darken($form-button-submit-background, 5%);
+
+  &:hover {
+    background: darken($form-button-submit-background, 6%);
+    border-color: darken($form-button-submit-background, 10%);
+  }
+}
+
+.submitButtonLoading {
+  composes: button;
+  background: $form-button-submit-background;
+  color: #ffffff;
+  border: 1px solid darken($form-button-submit-background, 5%);
+}
+
+.submitButtonSuccess {
+  composes: button;
+  background: $form-button-success-background;
+  color: #ffffff;
+  border: 1px solid darken($form-button-success-background, 5%);
 }
 
 .message {

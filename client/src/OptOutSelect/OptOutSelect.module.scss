@@ -1,4 +1,3 @@
-@import "../App/app-vars";
 @import "../Form/form-vars";
 
 .input {
@@ -26,11 +25,15 @@
 .inputText {
   background: transparent;
   border: 0;
-  width: 1px;
+  width: $form-control-padding-horizontal * 2 - 0.4;
   max-width: 100%;
   padding: ($form-control-padding-vertical - 0.2)
     $form-control-padding-horizontal ($form-control-padding-vertical - 0.2)
     ($form-control-padding-horizontal - 0.5);
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .list {
@@ -42,7 +45,7 @@
   max-height: 60vh;
   margin: 0;
   padding: 0;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 .hidden {
@@ -52,6 +55,12 @@
 .option {
   padding: ($form-control-padding-vertical - 0.2)
     $form-control-padding-horizontal;
+}
+
+.optionEmpty {
+  composes: option;
+  color: $form-control-disabled-text;
+  text-align: center;
 }
 
 .optionActive {

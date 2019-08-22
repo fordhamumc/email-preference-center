@@ -13,7 +13,11 @@ export const isUnsubscribed = status => {
   return ["unsubscribed", "cleaned"].includes(status);
 };
 
-const UnsubscribeField = ({ member: { id, current, status } }) => {
+const UnsubscribeField = ({
+  member: { id, current, status },
+  originalStatus,
+  ...props
+}) => {
   const [setStatus] = useMutation(SET_STATUS);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -25,7 +29,14 @@ const UnsubscribeField = ({ member: { id, current, status } }) => {
   };
   const handleUnsubscribeChange = e => {
     const variables = {
-      input: { id, status: e.target.checked ? "unsubscribed" : "subscribed" }
+      input: {
+        id,
+        status: e.target.checked
+          ? "unsubscribed"
+          : originalStatus === "subscribed"
+          ? "subscribed"
+          : "pending"
+      }
     };
     setStatus({ variables });
   };
@@ -40,6 +51,7 @@ const UnsubscribeField = ({ member: { id, current, status } }) => {
         } ${isFocused ? forms.checkboxFocused : ""}`}
       >
         <input
+          {...props}
           type="checkbox"
           name="unsubscribe"
           className={forms.checkboxInput}
