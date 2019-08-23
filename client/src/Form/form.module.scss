@@ -135,6 +135,10 @@
   border-width: 0 3px 3px 0;
 }
 
+.checkboxActive {
+  composes: checkbox;
+}
+
 .checkboxActive:before {
   border-color: #5180a0;
   background-color: #5180a0;
@@ -142,6 +146,10 @@
 
 .checkboxActive:after {
   border-color: #fff;
+}
+
+.checkboxFocus {
+  composes: checkbox;
 }
 
 .checkboxFocused:before {

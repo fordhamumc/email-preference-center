@@ -62,9 +62,16 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
 
   const [editing, setEditing] = useState(true);
 
+  const activeControl = useState();
+  const [, setActiveControl] = activeControl;
+  const handleSubmitFocus = ({ target }) => {
+    setActiveControl(target);
+  };
+
   const handleFormSubmit = e => {
     e.preventDefault();
     setEditing(false);
+    setActiveControl(e.target);
     const { id, email, status, optOuts } = data.member;
 
     // if recipient id is not provided get it from the data object
@@ -146,17 +153,27 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
         onClick={handleFormFocus}
         onFocus={handleFormFocus}
       >
-        <EmailField member={data.member} disabled={mutationLoading} />
-        <OptOutSelect member={data.member} disabled={mutationLoading} />
+        <EmailField
+          member={data.member}
+          disabled={mutationLoading}
+          active={activeControl}
+        />
+        <OptOutSelect
+          member={data.member}
+          disabled={mutationLoading}
+          active={activeControl}
+        />
         <UnsubscribeField
           member={data.member}
           disabled={mutationLoading}
           originalStatus={originalStatus}
+          active={activeControl}
         />
         <div className={forms.group}>
           <div className={forms.submitButtonContainer}>
             <input
               type="submit"
+              focus={handleSubmitFocus}
               value={submitButton.text}
               disabled={mutationLoading || (mutationData && !editing)}
               className={submitButton.className}

@@ -16,6 +16,7 @@ export const isUnsubscribed = status => {
 const UnsubscribeField = ({
   member: { id, current, status },
   originalStatus,
+  active,
   ...props
 }) => {
   const [setStatus] = useMutation(SET_STATUS);
@@ -27,6 +28,13 @@ const UnsubscribeField = ({
     if (type === "blur") newState = false;
     setIsFocused(newState);
   };
+
+  const [, setActiveControl] = active;
+  const handleUnsubscribeFocus = e => {
+    toggleFocus(e);
+    setActiveControl(e.target);
+  };
+
   const handleUnsubscribeChange = e => {
     const variables = {
       input: {
@@ -46,9 +54,9 @@ const UnsubscribeField = ({
         <div className={forms.toggleLabel}>Unsubscribe</div>
       )}
       <label
-        className={`${forms.checkbox}  ${
-          isUnsubscribed(status) ? forms.checkboxActive : ""
-        } ${isFocused ? forms.checkboxFocused : ""}`}
+        className={`${
+          isUnsubscribed(status) ? forms.checkboxActive : forms.checkbox
+        } ${isFocused ? forms.checkboxFocused : forms.checkbox}`}
       >
         <input
           {...props}
@@ -56,7 +64,7 @@ const UnsubscribeField = ({
           name="unsubscribe"
           className={forms.checkboxInput}
           onChange={handleUnsubscribeChange}
-          onFocus={toggleFocus}
+          onFocus={handleUnsubscribeFocus}
           onBlur={toggleFocus}
           checked={isUnsubscribed(status)}
         />

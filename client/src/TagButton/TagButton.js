@@ -36,6 +36,7 @@ const TagButton = ({ onClick, label, ...props }) => {
         aria-label={`Resubscribe to ${label}`}
         onClick={onClick}
         onKeyDown={handleCloseDown}
+        type="button"
       >
         &times;
       </button>

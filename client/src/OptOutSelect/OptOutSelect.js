@@ -41,10 +41,11 @@ const calcInputWidth = elem => {
   return tmpWidth;
 };
 
-const OptOutSelect = ({ member, disabled }) => {
+const OptOutSelect = ({ member, active, disabled }) => {
   const selected = member.optOuts.map(getOptOutDetails).filter(Boolean);
   const inputEl = useRef();
   const searchListEl = useRef();
+  const [activeControl, setActiveControl] = active;
   const [searchInput, setSearchInput] = useState("");
   const [searchList, setSearchList] = useState([]);
   const [searchListActive, setSearchListActive] = useState("");
@@ -72,19 +73,27 @@ const OptOutSelect = ({ member, disabled }) => {
     inputEl.current.focus();
   };
 
-  const handleListToggleClick = e => {
-    e.preventDefault();
-    setFocus();
-    toggleList();
+  const handleListToggleClick = ({ type, key }) => {
+    if (type !== "keypress") {
+      setFocus();
+      toggleList();
+    }
+    if (type === "keypress" && key === "Enter") toggleList();
   };
 
   const handleSearchChange = ({ target }) => {
     target.style.width = `${calcInputWidth(target)}px`;
     searchChange(target.value);
   };
-  const handleSearchFocus = () => {
+  const handleSearchFocus = ({ target }) => {
     setIsListVisibible(true);
+    setActiveControl(target);
   };
+  useEffect(() => {
+    if (activeControl !== inputEl.current) {
+      setIsListVisibible(false);
+    }
+  }, [activeControl]);
   const handleSearchDown = e => {
     const {
       key,
@@ -190,7 +199,9 @@ const OptOutSelect = ({ member, disabled }) => {
           </div>
           <button
             className={styles.dropdownIndicator}
-            onClick={handleListToggleClick}
+            onMouseUp={handleListToggleClick}
+            onKeyPress={handleListToggleClick}
+            type="button"
           >
             <svg
               viewBox="0 0 20 20"

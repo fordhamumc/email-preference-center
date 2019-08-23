@@ -10,7 +10,7 @@ const SET_EMAIL = gql`
   }
 `;
 
-const EmailField = ({ member, disabled, ...props }) => {
+const EmailField = ({ member, active, disabled, ...props }) => {
   const [setEmail] = useMutation(SET_EMAIL);
   const handleEmailChange = e =>
     setEmail({
@@ -18,6 +18,12 @@ const EmailField = ({ member, disabled, ...props }) => {
         input: { id: member.id, email: e.target.value }
       }
     });
+
+  const [, setActiveControl] = active;
+  const handleEmailFocus = ({ target }) => {
+    setActiveControl(target);
+  };
+
   return (
     <div className={forms.group}>
       <label htmlFor="email" className={forms.label}>
@@ -30,6 +36,7 @@ const EmailField = ({ member, disabled, ...props }) => {
         name="email"
         className={forms.control}
         value={member.email}
+        onFocus={handleEmailFocus}
         onChange={handleEmailChange}
         disabled={disabled || isUnsubscribed(member.status)}
         title={
