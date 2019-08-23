@@ -5,6 +5,7 @@ node_modules
 .htaccess
 .DS_Store
 .env*
+!.env.example
 .webpack
 .vscode
 dist
