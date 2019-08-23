@@ -32,7 +32,10 @@ const getUnselected = optOuts =>
 
 const calcInputWidth = elem => {
   const tmp = document.createElement("div");
-  tmp.textContent = [...elem.value].map(l => l + "\u200B").join("");
+  tmp.textContent =
+    elem.value.length >= elem.placeholder.length
+      ? [...elem.value].map(l => l + "\u200B").join("")
+      : elem.placeholder;
   tmp.className = elem.className;
   tmp.style.width = "auto";
   elem.parentNode.append(tmp);
@@ -85,15 +88,20 @@ const OptOutSelect = ({ member, active, disabled }) => {
     target.style.width = `${calcInputWidth(target)}px`;
     searchChange(target.value);
   };
+
   const handleSearchFocus = ({ target }) => {
+    target.placeholder = "Search...";
+    target.style.width = `${calcInputWidth(target)}px`;
     setIsListVisibible(true);
     setActiveControl(target);
   };
   useEffect(() => {
     if (activeControl !== inputEl.current) {
       setIsListVisibible(false);
+      inputEl.current.placeholder = "";
     }
   }, [activeControl]);
+
   const handleSearchDown = e => {
     const {
       key,
