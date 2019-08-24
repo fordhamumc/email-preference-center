@@ -1,3 +1,4 @@
+require("newrelic");
 import { ApolloServer } from "apollo-server";
 import gqlServerConfig from "./api";
 
