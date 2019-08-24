@@ -58,7 +58,7 @@ export default class ImcAPI extends RESTDataSource {
       client_secret: this.CLIENT_SECRET,
       refresh_token: this.REFRESH_TOKEN
     });
-    const [err, res] = await to(
+    const [, res] = await to(
       this.post("oauth/token", body, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -129,7 +129,7 @@ export default class ImcAPI extends RESTDataSource {
     const member = this.patch(
       `rest/databases/${databaseId}/contacts/${id}`,
       payload
-    ).then(async _ => await this.getMember({ recipientId }, databaseId));
+    ).then(async () => await this.getMember({ recipientId }, databaseId));
     return member;
   }
 

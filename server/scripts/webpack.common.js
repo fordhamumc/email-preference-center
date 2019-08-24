@@ -12,11 +12,7 @@ module.exports = {
       {
         exclude: [path.resolve(__dirname, "node_modules")],
         test: /\.js$/,
-        use: [
-          {
-            loader: "babel-loader"
-          }
-        ]
+        use: ["babel-loader", "eslint-loader"]
       },
       {
         exclude: [path.resolve(__dirname, "node_modules")],

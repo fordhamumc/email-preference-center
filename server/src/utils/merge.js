@@ -9,7 +9,7 @@ function customizer(objValue, srcValue, key, obj, src) {
   // if email is not updatable on this datasource don't override email or id
   if (
     ["email", "id"].includes(key) &&
-    obj.hasOwnProperty(key) &&
+    Object.prototype.hasOwnProperty.call(obj, key) &&
     src.__emailUpdatable === false
   ) {
     return obj[key];

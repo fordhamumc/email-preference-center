@@ -9,7 +9,7 @@ export default class MailchimpAPI extends RESTDataSource {
   constructor({ key, listId, optOutCategory }) {
     super();
 
-    if (!/.+\-.+/.test(key)) {
+    if (!/.+-.+/.test(key)) {
       throw new Error(`missing or invalid api key: ${key}`);
     }
 
@@ -89,7 +89,7 @@ export default class MailchimpAPI extends RESTDataSource {
         }
         return optOutId;
       })
-    ).then(async _ => {
+    ).then(async () => {
       const member = await this.patch(`lists/${listId}/members/${id}`, payload);
       return memberReducer(member, this);
     });
@@ -155,7 +155,7 @@ export default class MailchimpAPI extends RESTDataSource {
       await this.getOptOutCategories(optOutCategory, listId),
       from
     );
-    if (!optOutsKeyed.hasOwnProperty(value)) return null;
+    if (!Object.prototype.hasOwnProperty.call(optOutsKeyed, value)) return null;
     return optOutsKeyed[value][to];
   }
 }

@@ -1,4 +1,4 @@
-require("newrelic");
+if (process.env.NODE_ENV === "production") require("newrelic");
 import { ApolloServer } from "apollo-server";
 import gqlServerConfig from "./api";
 
