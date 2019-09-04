@@ -30,6 +30,7 @@
 .selectContainer {
   display: flex;
   flex-wrap: wrap;
+  flex: 1;
 }
 
 .dropdownIndicator {
@@ -56,8 +57,9 @@
 .search {
   background: transparent;
   border: 0;
-  width: $form-control-padding-horizontal * 2;
+  flex: 1 1 $form-control-padding-horizontal * 2;
   max-width: 100%;
+  min-width: $form-control-padding-horizontal * 2;
   padding: ($form-control-padding-vertical - 0.2)
     $form-control-padding-horizontal ($form-control-padding-vertical - 0.2)
     ($form-control-padding-horizontal - 0.5);

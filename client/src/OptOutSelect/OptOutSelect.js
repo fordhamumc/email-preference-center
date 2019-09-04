@@ -37,6 +37,7 @@ const calcInputWidth = elem => {
       ? [...elem.value].map(l => l + "\u200B").join("")
       : elem.placeholder;
   tmp.className = elem.className;
+  tmp.style.flex = "unset";
   tmp.style.width = "auto";
   elem.parentNode.append(tmp);
   const tmpWidth = tmp.offsetWidth + 8;
@@ -68,6 +69,10 @@ const OptOutSelect = ({ member, active, disabled }) => {
       )
     );
   };
+  useEffect(() => {
+    if (inputEl.current)
+      inputEl.current.style.flexBasis = `${calcInputWidth(inputEl.current)}px`;
+  }, [searchInput, inputEl]);
 
   const toggleList = () => {
     setIsListVisibible(!isListVisible);
@@ -85,13 +90,12 @@ const OptOutSelect = ({ member, active, disabled }) => {
   };
 
   const handleSearchChange = ({ target }) => {
-    target.style.width = `${calcInputWidth(target)}px`;
     searchChange(target.value);
   };
 
   const handleSearchFocus = ({ target }) => {
     target.placeholder = "Search...";
-    target.style.width = `${calcInputWidth(target)}px`;
+    target.style.flexBasis = `${calcInputWidth(target)}px`;
     setIsListVisibible(true);
     setActiveControl(target);
   };
@@ -101,6 +105,11 @@ const OptOutSelect = ({ member, active, disabled }) => {
       inputEl.current.placeholder = "";
     }
   }, [activeControl]);
+
+  const handleOptOutOptionClick = () => {
+    searchChange("");
+    setFocus();
+  };
 
   const handleSearchDown = e => {
     const {
@@ -228,8 +237,8 @@ const OptOutSelect = ({ member, active, disabled }) => {
             memberId={member.id}
             activeState={[searchListActive, setSearchListActive]}
             aria-labelledby="unsubscribeLabel"
-            onTouchEnd={setFocus}
-            onClick={setFocus}
+            onTouchEnd={handleOptOutOptionClick}
+            onClick={handleOptOutOptionClick}
             ref={searchListEl}
           />
         )}
