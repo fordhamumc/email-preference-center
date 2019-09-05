@@ -19,7 +19,7 @@ html {
 body {
   color: $text-color;
   font-size: $rem-size;
-  line-height: 1.6;
+  line-height: $line-height;
   font-family: $font-family;
   font-weight: $font-weight;
 }

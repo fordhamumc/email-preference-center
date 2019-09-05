@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import OptOutSelect, { optOutUpdateFormat } from "../OptOutSelect";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
 import { navigate } from "@reach/router";
 import forms from "../Form/form.module.scss";
+import styles from "./PreferenceForm.module.scss";
 import EmailField from "../EmailField";
 import UnsubscribeField from "../UnsubscribeField";
+import Loader from "../Loader";
 
 const MEMBER_FRAGMENT = gql`
   fragment memberFields on Member {
@@ -121,16 +123,24 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
   const [submitButton, setSubmitButton] = useState({});
   useEffect(() => {
     const button = {
-      className: forms.submitButton,
-      text: "Update Your Preferences"
+      className: forms.submitButtonLoading,
+      children: "Update Your Preferences",
+      title: null
     };
     if (mutationLoading) {
       button.className = forms.submitButtonLoading;
-      button.text = "Updating...";
+      button.children = <Loader className={forms.buttonLoadingIcon} />;
+      button.title = "Updating Your Information";
     }
     if (mutationData && !editing) {
       button.className = forms.submitButtonSuccess;
-      button.text = "Success!";
+      button.children = (
+        <Fragment>
+          <Loader className={forms.buttonLoadingIcon} done={true} />
+          <span className={forms.buttonTextReveal}>Updated</span>
+        </Fragment>
+      );
+      button.title = "Success";
     }
     setSubmitButton(button);
   }, [mutationLoading, mutationData, editing]);
@@ -145,7 +155,8 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
     }
   }, [data, mutationData, originalStatus]);
 
-  if (error || loading) return null;
+  if (error) return null;
+  if (loading) return <Loader stroke="#900028" className={styles.loading} />;
   return (
     <div>
       <form
@@ -171,12 +182,11 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
         />
         <div className={forms.group}>
           <div className={forms.submitButtonContainer}>
-            <input
+            <button
               type="submit"
-              focus={handleSubmitFocus}
-              value={submitButton.text}
+              onFocus={handleSubmitFocus}
               disabled={mutationLoading || (mutationData && !editing)}
-              className={submitButton.className}
+              {...submitButton}
             />
             {mutationError && <p>Please try again.</p>}
           </div>

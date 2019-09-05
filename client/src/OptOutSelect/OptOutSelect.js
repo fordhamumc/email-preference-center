@@ -38,7 +38,6 @@ const calcInputWidth = elem => {
       : elem.placeholder;
   tmp.className = elem.className;
   tmp.style.flex = "unset";
-  tmp.style.width = "auto";
   elem.parentNode.append(tmp);
   const tmpWidth = tmp.offsetWidth + 8;
   tmp.remove();
@@ -131,7 +130,7 @@ const OptOutSelect = ({ member, active, disabled }) => {
         let activeIndex = searchList.indexOf(searchListActive);
         key === "ArrowDown" ? ++activeIndex : --activeIndex;
         setIsListVisibible(activeIndex < 0 ? false : true);
-        if (activeIndex >= 0 || activeIndex < searchList.length) {
+        if (activeIndex >= 0 && activeIndex < searchList.length) {
           setSearchListActive(searchList[activeIndex]);
         }
         break;
@@ -181,7 +180,8 @@ const OptOutSelect = ({ member, active, disabled }) => {
           className={isListVisible ? styles.selectActive : styles.select}
           aria-expanded={isListVisible}
           aria-haspopup="listbox"
-          aria-owns="optOutList"
+          aria-controls="optOutList"
+          role="combobox"
           aria-disabled={disabled || isUnsubscribed(member.status)}
         >
           <div className={styles.selectContainer} onClick={setFocus}>
@@ -206,9 +206,10 @@ const OptOutSelect = ({ member, active, disabled }) => {
               onFocus={handleSearchFocus}
               disabled={disabled || isUnsubscribed(member.status)}
               aria-label="Search unsubscribe options"
+              aria-autocomplete="list"
               aria-activedescendant={
                 searchListActive
-                  ? camelCase(`optOut ${searchListActive.name}`)
+                  ? camelCase(`optOut${searchListActive.name}`)
                   : ""
               }
               ref={inputEl}
@@ -218,7 +219,10 @@ const OptOutSelect = ({ member, active, disabled }) => {
             className={styles.dropdownIndicator}
             onMouseUp={handleListToggleClick}
             onKeyPress={handleListToggleClick}
+            aria-expanded={isListVisible}
+            aria-haspopup="listbox"
             type="button"
+            title="toggle unsubscribe list"
           >
             <svg
               viewBox="0 0 20 20"

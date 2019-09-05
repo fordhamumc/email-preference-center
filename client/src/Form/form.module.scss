@@ -54,8 +54,9 @@
   padding: $form-button-padding-vertical $form-button-padding-horizontal;
   border-radius: 0.2rem;
   letter-spacing: 0.03em;
-  display: inline-block;
-  text-align: center;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   text-decoration: none;
   transition: background $transition-timing, box-shadow $transition-timing;
   white-space: pre-wrap;
@@ -66,11 +67,34 @@
   }
 }
 
+.buttonTextReveal {
+  display: block;
+  margin: 0 0.25rem;
+  overflow-x: hidden;
+  text-indent: -99px;
+  animation: reveal 0.3s ease-out 0.5s forwards;
+}
+
+@keyframes reveal {
+  100% {
+    text-indent: 0;
+  }
+}
+
+$buttonOffset: (($line-height - 1.15) * -0.5em);
+.buttonLoadingIcon {
+  line-height: 1.15;
+  display: block;
+  height: $line-height * 1em;
+  margin: $buttonOffset 0;
+}
+
 .submitButton {
   composes: button;
   background: $form-button-submit-background;
   color: #ffffff;
   border: 1px solid darken($form-button-submit-background, 5%);
+  min-width: 15rem;
 
   &:hover {
     background: darken($form-button-submit-background, 6%);
@@ -83,6 +107,7 @@
   background: $form-button-submit-background;
   color: #ffffff;
   border: 1px solid darken($form-button-submit-background, 5%);
+  min-width: 15rem;
 }
 
 .submitButtonSuccess {
@@ -90,6 +115,7 @@
   background: $form-button-success-background;
   color: #ffffff;
   border: 1px solid darken($form-button-success-background, 5%);
+  min-width: 15rem;
   opacity: 1;
 }
 
