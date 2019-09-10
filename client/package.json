@@ -34,7 +34,7 @@
     "not op_mini all"
   ],
   "proxy": "http://localhost:4000/",
-  "homepage": ".",
+  "homepage": "https://emailprefs.fordham.edu/",
   "devDependencies": {
     "node-sass": "^4.12.0",
     "rimraf": "^3.0.0"

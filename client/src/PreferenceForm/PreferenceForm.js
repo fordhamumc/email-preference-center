@@ -56,9 +56,10 @@ const PreferenceForm = ({ email, recipientId, location }) => {
         title: "Set Your Email Preferences",
         content: "Your email preferences have been updated."
       });
-      if (member.email !== data.member.email) {
+      console.log(member.email, email);
+      if (member.email !== email) {
         navigate(
-          `${process.env.REACT_APP_BASE_PATH || ""}/${member.email}/${
+          `${process.env.PUBLIC_URL}/${member.email}/${
             recipientId ? recipientId : ""
           }`
         );
@@ -127,16 +128,16 @@ const PreferenceForm = ({ email, recipientId, location }) => {
 
   const [originalStatus, setOriginalStatus] = useState("");
   useEffect(() => {
-    if (data.member && !originalStatus) {
+    if (data && data.member && !originalStatus) {
       setOriginalStatus(data.member.status);
     }
     if (mutationData && mutationData.member) {
       setOriginalStatus(mutationData.member.status);
     }
-  }, [data.member, mutationData, originalStatus]);
+  }, [data, mutationData, originalStatus]);
 
   if (loading) return <Loader stroke="#900028" />;
-  if (data.member) {
+  if (data && data.member) {
     return (
       <div>
         <form

@@ -30,11 +30,11 @@ const App = () => {
         <div className="wrapper">
           <Header />
           <div className="container">
-            <Router basepath={process.env.REACT_APP_BASE_PATH || ""}>
+            <Router basepath={process.env.PUBLIC_URL}>
               <PreferenceForm path="/:email" />
               <PreferenceForm path="/:email/:recipientId" />
-              <Unsubscribe path="unsubscribe/:optOut/:email/:recipientId" />
-              <Unsubscribe path="unsubscribe/:optOut/:email/" />
+              <Unsubscribe path="/unsubscribe/:optOut/:email/:recipientId" />
+              <Unsubscribe path="/unsubscribe/:optOut/:email" />
             </Router>
           </div>
           <Footer />

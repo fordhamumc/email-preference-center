@@ -80,9 +80,9 @@ const OptOutSelect = ({ member, active, disabled }) => {
     inputEl.current.focus();
   };
 
-  const handleContainerClick = ({target}) => {
-    // setFocus();
-  }
+  const handleContainerClick = ({ target, currentTarget }) => {
+    if (target === currentTarget) setFocus();
+  };
 
   const handleListToggleClick = ({ type, key }) => {
     if (type !== "keypress") {
@@ -110,6 +110,7 @@ const OptOutSelect = ({ member, active, disabled }) => {
   const handleOptOutOptionClick = () => {
     searchChange("");
     setFocus();
+    toggleList();
   };
 
   const handleSearchDown = e => {
@@ -164,7 +165,7 @@ const OptOutSelect = ({ member, active, disabled }) => {
       deleteOptOut({
         variables: { input: { id: member.id, name: optOut.name } }
       });
-      if (e.type !== "click") setFocus();  
+      if (e.type !== "click") setFocus();
     };
   };
   if (isUnsubscribed(member.status)) return null;
@@ -187,7 +188,10 @@ const OptOutSelect = ({ member, active, disabled }) => {
           role="combobox"
           aria-disabled={disabled || isUnsubscribed(member.status)}
         >
-          <div className={styles.selectContainer} onClick={handleContainerClick}>
+          <div
+            className={styles.selectContainer}
+            onClick={handleContainerClick}
+          >
             {selected.map(optOut => (
               <TagButton
                 key={optOut.name}

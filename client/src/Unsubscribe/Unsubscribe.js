@@ -10,7 +10,7 @@ import { HeaderMessageContext } from "../Header";
 const Unsubscribe = ({ optOut, email, recipientId }) => {
   const [updateMember, { loading, error, data }] = useMutation(UPDATE_MEMBER);
   const [, setMessage] = useContext(HeaderMessageContext);
-  const path = `${process.env.REACT_APP_BASE_PATH || ""}/${email}/${
+  const path = `${process.env.PUBLIC_URL}/${email}/${
     recipientId ? recipientId : ""
   }`;
 

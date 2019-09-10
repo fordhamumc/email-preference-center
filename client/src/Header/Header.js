@@ -12,7 +12,7 @@ const Header = () => {
     <header className={styles.header}>
       <div className={styles.container}>
         <img
-          src={`${process.env.REACT_APP_BASE_PATH || ""}/fordham.png`}
+          src={`${process.env.PUBLIC_URL}/fordham.png`}
           alt="Fordham"
           className={styles.logo}
         />
