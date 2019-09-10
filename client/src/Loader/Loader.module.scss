@@ -3,6 +3,10 @@ $duration: 1.4s;
 $curve: cubic-bezier(0.65, 0, 0.45, 1);
 
 .spinner {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 2em;
   animation: rotator $duration linear infinite;
 }
 

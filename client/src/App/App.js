@@ -6,8 +6,9 @@ import "normalize.css";
 import "./app.scss";
 import PreferenceForm from "../PreferenceForm";
 import member from "../member";
-import Header from "../Header";
+import Header, { HeaderMessageContext } from "../Header";
 import Footer from "../Footer";
+import Unsubscribe from "../Unsubscribe";
 
 const client = new ApolloClient({
   uri:
@@ -25,19 +26,20 @@ const App = () => {
   });
   return (
     <ApolloProvider client={client}>
-      <div className="wrapper">
-        <Header message={message} />
-        <div className="container">
-          <Router basepath={process.env.REACT_APP_BASE_PATH || ""}>
-            <PreferenceForm path="/:email" setMessage={setMessage} />
-            <PreferenceForm
-              path="/:email/:recipientId"
-              setMessage={setMessage}
-            />
-          </Router>
+      <HeaderMessageContext.Provider value={[message, setMessage]}>
+        <div className="wrapper">
+          <Header />
+          <div className="container">
+            <Router basepath={process.env.REACT_APP_BASE_PATH || ""}>
+              <PreferenceForm path="/:email" />
+              <PreferenceForm path="/:email/:recipientId" />
+              <Unsubscribe path="unsubscribe/:optOut/:email/:recipientId" />
+              <Unsubscribe path="unsubscribe/:optOut/:email/" />
+            </Router>
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </HeaderMessageContext.Provider>
     </ApolloProvider>
   );
 };

@@ -1,64 +1,68 @@
-import React, { useEffect, useState, Fragment } from "react";
+import React, { useEffect, useState, useContext, Fragment } from "react";
 import OptOutSelect, { optOutUpdateFormat } from "../OptOutSelect";
 import { useQuery, useMutation } from "@apollo/react-hooks";
-import gql from "graphql-tag";
+import { GET_MEMBER, UPDATE_MEMBER } from "../member";
 import { navigate } from "@reach/router";
 import forms from "../Form/form.module.scss";
-import styles from "./PreferenceForm.module.scss";
 import EmailField from "../EmailField";
 import UnsubscribeField from "../UnsubscribeField";
 import Loader from "../Loader";
+import { HeaderMessageContext } from "../Header";
 
-const MEMBER_FRAGMENT = gql`
-  fragment memberFields on Member {
-    id
-    firstName
-    lastName
-    status
-    email
-    optOuts
-    gdpr
-    current
-    recipientId
-  }
-`;
-
-const GET_MEMBER = gql`
-  query getMember($input: MemberInput!) {
-    member(input: $input) {
-      ...memberFields
-    }
-  }
-  ${MEMBER_FRAGMENT}
-`;
-
-const UPDATE_MEMBER = gql`
-  mutation UpdateMember($input: MemberUpdateInput!) {
-    updateMember(input: $input) {
-      ...memberFields
-    }
-  }
-  ${MEMBER_FRAGMENT}
-`;
-
-const PreferenceForm = ({ email, recipientId, setMessage }) => {
+const PreferenceForm = ({ email, recipientId, location }) => {
+  const [, setMessage] = useContext(HeaderMessageContext);
   const input = { recipientId };
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) input.email = email;
 
-  const { loading, error, data } = useQuery(GET_MEMBER, {
-    variables: { input }
+  const { loading, data } = useQuery(GET_MEMBER, {
+    variables: { input },
+    onCompleted() {
+      if (!location.state) {
+        setMessage({
+          title: "Set Your Email Preferences",
+          content:
+            "Please use the options below to customize the types of emails you receive from Fordham."
+        });
+      }
+    },
+    onError() {
+      setMessage({
+        title: "We're having trouble finding your account.",
+        content: (
+          <Fragment>
+            Please contact{" "}
+            <a href="mailto:emailmarketing@fordham.edu">
+              emailmarketing@fordham.edu
+            </a>{" "}
+            to update your email preferences.
+          </Fragment>
+        )
+      });
+    }
   });
+
+  useEffect(() => {
+    if (loading && !location.state) {
+      setMessage({ title: "Loading preferences...", content: "" });
+    }
+  }, [setMessage, loading, location.state]);
 
   const [
     updateMember,
     { loading: mutationLoading, error: mutationError, data: mutationData }
   ] = useMutation(UPDATE_MEMBER, {
-    onCompleted({ updateMember }) {
-      navigate(
-        `${process.env.REACT_APP_BASE_PATH || ""}/${updateMember.email}/${
-          recipientId ? recipientId : ""
-        }`
-      );
+    onCompleted({ member }) {
+      setMessage({
+        title: "Set Your Email Preferences",
+        content: "Your email preferences have been updated."
+      });
+      if (member.email !== data.member.email) {
+        navigate(
+          `${process.env.REACT_APP_BASE_PATH || ""}/${member.email}/${
+            recipientId ? recipientId : ""
+          }`
+        );
+      }
     }
   });
 
@@ -74,7 +78,7 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
     e.preventDefault();
     setEditing(false);
     setActiveControl(e.target);
-    const { id, email, status, optOuts } = data.member;
+    const { id, email, status, optOuts, gdpr } = data.member;
 
     // if recipient id is not provided get it from the data object
     recipientId = recipientId || data.member.recipientId;
@@ -88,37 +92,13 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
     };
 
     // if gdpr already exists don't update it
-    if (!data.member.gdpr) input.gdpr = true;
+    if (!gdpr) input.gdpr = true;
 
     updateMember({ variables: { input } });
   };
   const handleFormFocus = e => {
     setEditing(true);
   };
-
-  useEffect(() => {
-    const message = { title: "", content: "" };
-    if (error) {
-      message.title = "We're having trouble finding your account.";
-      message.content = (
-        <p>
-          Please contact{" "}
-          <a href="mailto:emailmarketing@fordham.edu">
-            emailmarketing@fordham.edu
-          </a>{" "}
-          to update your email preferences.
-        </p>
-      );
-    } else if (loading) {
-      message.title = "Loading preferences...";
-      message.content = "";
-    } else {
-      message.title = "Set Your Email Preferences";
-      message.content =
-        "Fordham University will use the information you provide on this form to stay in touch with you. Please use the options below to customize the types of emails you receive from Fordham.";
-    }
-    setMessage(message);
-  }, [setMessage, error, loading]);
 
   const [submitButton, setSubmitButton] = useState({});
   useEffect(() => {
@@ -147,53 +127,55 @@ const PreferenceForm = ({ email, recipientId, setMessage }) => {
 
   const [originalStatus, setOriginalStatus] = useState("");
   useEffect(() => {
-    if (data && data.member && !originalStatus) {
+    if (data.member && !originalStatus) {
       setOriginalStatus(data.member.status);
     }
-    if (mutationData && mutationData.updateMember) {
-      setOriginalStatus(mutationData.updateMember.status);
+    if (mutationData && mutationData.member) {
+      setOriginalStatus(mutationData.member.status);
     }
-  }, [data, mutationData, originalStatus]);
+  }, [data.member, mutationData, originalStatus]);
 
-  if (error) return null;
-  if (loading) return <Loader stroke="#900028" className={styles.loading} />;
-  return (
-    <div>
-      <form
-        onSubmit={handleFormSubmit}
-        onClick={handleFormFocus}
-        onFocus={handleFormFocus}
-      >
-        <EmailField
-          member={data.member}
-          disabled={mutationLoading}
-          active={activeControl}
-        />
-        <OptOutSelect
-          member={data.member}
-          disabled={mutationLoading}
-          active={activeControl}
-        />
-        <UnsubscribeField
-          member={data.member}
-          disabled={mutationLoading}
-          originalStatus={originalStatus}
-          active={activeControl}
-        />
-        <div className={forms.group}>
-          <div className={forms.submitButtonContainer}>
-            <button
-              type="submit"
-              onFocus={handleSubmitFocus}
-              disabled={mutationLoading || (mutationData && !editing)}
-              {...submitButton}
-            />
-            {mutationError && <p>Please try again.</p>}
+  if (loading) return <Loader stroke="#900028" />;
+  if (data.member) {
+    return (
+      <div>
+        <form
+          onSubmit={handleFormSubmit}
+          onClick={handleFormFocus}
+          onFocus={handleFormFocus}
+        >
+          <EmailField
+            member={data.member}
+            disabled={mutationLoading}
+            active={activeControl}
+          />
+          <OptOutSelect
+            member={data.member}
+            disabled={mutationLoading}
+            active={activeControl}
+          />
+          <UnsubscribeField
+            member={data.member}
+            disabled={mutationLoading}
+            originalStatus={originalStatus}
+            active={activeControl}
+          />
+          <div className={forms.group}>
+            <div className={forms.submitButtonContainer}>
+              <button
+                type="submit"
+                onFocus={handleSubmitFocus}
+                disabled={mutationLoading || (mutationData && !editing)}
+                {...submitButton}
+              />
+              {mutationError && <p>Please try again.</p>}
+            </div>
           </div>
-        </div>
-      </form>
-    </div>
-  );
+        </form>
+      </div>
+    );
+  }
+  return null;
 };
 
 export default PreferenceForm;

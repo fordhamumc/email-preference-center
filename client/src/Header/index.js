@@ -1,3 +1,4 @@
-import Header from "./Header";
+import Header, { HeaderMessageContext } from "./Header";
 
+export { HeaderMessageContext };
 export default Header;

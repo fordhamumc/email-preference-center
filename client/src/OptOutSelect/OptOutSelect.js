@@ -80,6 +80,10 @@ const OptOutSelect = ({ member, active, disabled }) => {
     inputEl.current.focus();
   };
 
+  const handleContainerClick = ({target}) => {
+    // setFocus();
+  }
+
   const handleListToggleClick = ({ type, key }) => {
     if (type !== "keypress") {
       setFocus();
@@ -93,7 +97,6 @@ const OptOutSelect = ({ member, active, disabled }) => {
   };
 
   const handleSearchFocus = ({ target }) => {
-    target.placeholder = "Search...";
     target.style.flexBasis = `${calcInputWidth(target)}px`;
     setIsListVisibible(true);
     setActiveControl(target);
@@ -101,7 +104,6 @@ const OptOutSelect = ({ member, active, disabled }) => {
   useEffect(() => {
     if (activeControl !== inputEl.current) {
       setIsListVisibible(false);
-      inputEl.current.placeholder = "";
     }
   }, [activeControl]);
 
@@ -157,11 +159,12 @@ const OptOutSelect = ({ member, active, disabled }) => {
   };
   const getRemoveClickHandler = optOut => {
     return e => {
+      e.stopPropagation();
       e.preventDefault();
       deleteOptOut({
         variables: { input: { id: member.id, name: optOut.name } }
       });
-      setFocus();
+      if (e.type !== "click") setFocus();  
     };
   };
   if (isUnsubscribed(member.status)) return null;
@@ -184,7 +187,7 @@ const OptOutSelect = ({ member, active, disabled }) => {
           role="combobox"
           aria-disabled={disabled || isUnsubscribed(member.status)}
         >
-          <div className={styles.selectContainer} onClick={setFocus}>
+          <div className={styles.selectContainer} onClick={handleContainerClick}>
             {selected.map(optOut => (
               <TagButton
                 key={optOut.name}
@@ -201,6 +204,7 @@ const OptOutSelect = ({ member, active, disabled }) => {
               name="optOutSearch"
               id="optOutSearch"
               value={searchInput}
+              placeholder="Search..."
               onChange={handleSearchChange}
               onKeyDown={handleSearchDown}
               onFocus={handleSearchFocus}

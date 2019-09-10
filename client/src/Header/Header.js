@@ -1,7 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext, createContext } from "react";
 import styles from "./Header.module.scss";
 
-const Header = ({ message }) => {
+export const HeaderMessageContext = createContext([{}, () => {}]);
+
+const Header = () => {
+  const [message] = useContext(HeaderMessageContext);
   useEffect(() => {
     document.title = message.title;
   }, [message]);
