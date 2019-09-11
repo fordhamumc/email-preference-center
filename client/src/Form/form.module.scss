@@ -58,7 +58,8 @@
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  transition: background $transition-timing, box-shadow $transition-timing;
+  transition: background $transition-timing, border $transition-timing,
+    box-shadow $transition-timing;
   white-space: pre-wrap;
 
   &:focus {
@@ -103,20 +104,25 @@ $buttonOffset: (($line-height - 1.15) * -0.5em);
 }
 
 .submitButtonLoading {
-  composes: button;
-  background: $form-button-submit-background;
-  color: #ffffff;
-  border: 1px solid darken($form-button-submit-background, 5%);
-  min-width: 15rem;
+  composes: submitButton;
+
+  &:hover {
+    background: $form-button-submit-background;
+    border-color: darken($form-button-submit-background, 5%);
+  }
 }
 
 .submitButtonSuccess {
-  composes: button;
+  composes: submitButton;
   background: $form-button-success-background;
   color: #ffffff;
-  border: 1px solid darken($form-button-success-background, 5%);
-  min-width: 15rem;
+  border-color: darken($form-button-success-background, 5%);
   opacity: 1;
+
+  &:hover {
+    background: $form-button-success-background;
+    border-color: darken($form-button-success-background, 5%);
+  }
 }
 
 .message {

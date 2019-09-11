@@ -5,9 +5,8 @@
 
 const optOutOptions = {
   "Alumni Relations": {},
-  Athletics: {},
-  "Campus Ministry": {},
   "Development and University Relations": {},
+  Diversity: {},
   "Fordham College at Lincoln Center": {},
   "Fordham College at Rose Hill": {},
   "Fordham Magazine": {
@@ -19,17 +18,17 @@ const optOutOptions = {
     description:
       "A weekly email for students, faculty, and staff, bringing timely campus updates and features to the University community "
   },
-  "Gabelli School of Business": {},
   Giving: {},
   "Graduate School of Arts and Sciences": {},
   "Graduate School of Education": {},
-  "Graduate School of Religion and Religious Education": {},
   "Graduate School of Social Service": {},
+  "Human Resources": {},
+  IT: {},
   Orthodoxy: {},
   Parents: {},
   President: {},
   "Professional and Continuing Studies": {},
-  Provost: {},
+  "Public Safety": {},
   "Rams in the News": {},
   "Special Events": {},
   "Strategic Planning": {},

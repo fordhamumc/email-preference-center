@@ -104,7 +104,7 @@ const PreferenceForm = ({ email, recipientId, location }) => {
   const [submitButton, setSubmitButton] = useState({});
   useEffect(() => {
     const button = {
-      className: forms.submitButtonLoading,
+      className: forms.submitButton,
       children: "Update Your Preferences",
       title: null
     };
