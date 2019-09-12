@@ -50,12 +50,12 @@ const Unsubscribe = ({ optOut, email, recipientId }) => {
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) input.id = md5(email);
       updateMember({ variables: { input } });
     } else {
-      navigate(path);
+      navigate(path, { state: { success: false }, replace: true });
     }
   }, [optOut, email, path, recipientId, updateMember]);
 
   useEffect(() => {
-    if (data) navigate(path);
+    if (data) navigate(path, { state: { success: true }, replace: true });
   }, [path, data]);
 
   if (loading) return <Loader />;

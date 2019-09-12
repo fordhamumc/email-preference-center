@@ -10,14 +10,14 @@ import Loader from "../Loader";
 import { HeaderMessageContext } from "../Header";
 
 const PreferenceForm = ({ email, recipientId, location }) => {
-  const [, setMessage] = useContext(HeaderMessageContext);
+  const [message, setMessage] = useContext(HeaderMessageContext);
   const input = { recipientId };
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) input.email = email;
 
   const { loading, data } = useQuery(GET_MEMBER, {
     variables: { input },
     onCompleted() {
-      if (!location.state) {
+      if (!location.state || !location.state.success || !message.title) {
         setMessage({
           title: "Set Your Email Preferences",
           content:
@@ -56,7 +56,7 @@ const PreferenceForm = ({ email, recipientId, location }) => {
         title: "Set Your Email Preferences",
         content: "Your email preferences have been updated."
       });
-      console.log(member.email, email);
+
       if (member.email !== email) {
         navigate(
           `${process.env.PUBLIC_URL}/${member.email}/${
@@ -67,17 +67,26 @@ const PreferenceForm = ({ email, recipientId, location }) => {
     }
   });
 
-  const [editing, setEditing] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  useEffect(() => {
+    if (isEditing) {
+      setMessage({
+        title: "Set Your Email Preferences",
+        content:
+          "Please use the options below to customize the types of emails you receive from Fordham."
+      });
+    }
+  }, [isEditing, setMessage]);
 
-  const activeControl = useState();
-  const [, setActiveControl] = activeControl;
+  const activeControlState = useState();
+  const [, setActiveControl] = activeControlState;
   const handleSubmitFocus = ({ target }) => {
     setActiveControl(target);
   };
 
   const handleFormSubmit = e => {
     e.preventDefault();
-    setEditing(false);
+    setIsEditing(false);
     setActiveControl(e.target);
     const { id, email, status, optOuts, gdpr } = data.member;
 
@@ -97,8 +106,8 @@ const PreferenceForm = ({ email, recipientId, location }) => {
 
     updateMember({ variables: { input } });
   };
-  const handleFormFocus = e => {
-    setEditing(true);
+  const handleFormFocus = () => {
+    setIsEditing(true);
   };
 
   const [submitButton, setSubmitButton] = useState({});
@@ -113,7 +122,7 @@ const PreferenceForm = ({ email, recipientId, location }) => {
       button.children = <Loader className={forms.buttonLoadingIcon} />;
       button.title = "Updating Your Information";
     }
-    if (mutationData && !editing) {
+    if (mutationData && !isEditing) {
       button.className = forms.submitButtonSuccess;
       button.children = (
         <Fragment>
@@ -124,7 +133,7 @@ const PreferenceForm = ({ email, recipientId, location }) => {
       button.title = "Success";
     }
     setSubmitButton(button);
-  }, [mutationLoading, mutationData, editing]);
+  }, [mutationLoading, mutationData, isEditing]);
 
   const [originalStatus, setOriginalStatus] = useState("");
   useEffect(() => {
@@ -148,25 +157,25 @@ const PreferenceForm = ({ email, recipientId, location }) => {
           <EmailField
             member={data.member}
             disabled={mutationLoading}
-            active={activeControl}
+            active={activeControlState}
           />
           <OptOutSelect
             member={data.member}
             disabled={mutationLoading}
-            active={activeControl}
+            active={activeControlState}
           />
           <UnsubscribeField
             member={data.member}
             disabled={mutationLoading}
             originalStatus={originalStatus}
-            active={activeControl}
+            active={activeControlState}
           />
           <div className={forms.group}>
             <div className={forms.submitButtonContainer}>
               <button
                 type="submit"
                 onFocus={handleSubmitFocus}
-                disabled={mutationLoading || (mutationData && !editing)}
+                disabled={mutationLoading || (mutationData && !isEditing)}
                 {...submitButton}
               />
               {mutationError && <p>Please try again.</p>}

@@ -20,9 +20,8 @@ const client = new ApolloClient({
 
 const App = () => {
   const [message, setMessage] = useState({
-    title: "Fordham Email Preferences",
-    content:
-      "To set your email preferences, please click the manage preferences link in the footer of a Fordham email."
+    title: "",
+    content: ""
   });
   return (
     <ApolloProvider client={client}>
