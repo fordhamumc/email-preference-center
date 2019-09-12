@@ -53,9 +53,14 @@ const OptOutSelect = ({ member, active, disabled }) => {
   const [searchList, setSearchList] = useState([]);
   const [searchListActive, setSearchListActive] = useState("");
   const [isListVisible, setIsListVisibible] = useState(false);
+
   useEffect(() => {
     setSearchList(getUnselected(member.optOuts));
   }, [member.optOuts]);
+
+  useEffect(() => {
+    if (searchList.length === 0) setSearchListActive("");
+  }, [searchList]);
 
   const [addOptOut] = useMutation(ADD_OPT_OUT);
   const [deleteOptOut] = useMutation(DELETE_OPT_OUT);
@@ -123,9 +128,11 @@ const OptOutSelect = ({ member, active, disabled }) => {
     switch (key) {
       case "Enter":
         e.preventDefault();
-        addOptOut({
-          variables: { input: { id: member.id, name: searchListActive.name } }
-        });
+        if (searchListActive) {
+          addOptOut({
+            variables: { input: { id: member.id, name: searchListActive.name } }
+          });
+        }
         searchChange("");
         break;
       case "ArrowDown":
