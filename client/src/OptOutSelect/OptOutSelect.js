@@ -131,6 +131,10 @@ const OptOutSelect = ({ member, active, disabled }) => {
       case "ArrowDown":
       case "ArrowUp":
         let activeIndex = searchList.indexOf(searchListActive);
+        if (key === "ArrowDown" && !isListVisible) {
+          setIsListVisibible(true);
+          break;
+        }
         key === "ArrowDown" ? ++activeIndex : --activeIndex;
         setIsListVisibible(activeIndex < 0 ? false : true);
         if (activeIndex >= 0 && activeIndex < searchList.length) {
@@ -160,7 +164,6 @@ const OptOutSelect = ({ member, active, disabled }) => {
   };
   const getRemoveClickHandler = optOut => {
     return e => {
-      e.stopPropagation();
       e.preventDefault();
       deleteOptOut({
         variables: { input: { id: member.id, name: optOut.name } }
