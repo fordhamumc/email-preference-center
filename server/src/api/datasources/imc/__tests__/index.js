@@ -272,6 +272,15 @@ describe("[ImcAPI.transformOutOutsToCustomFields]", () => {
     expect(res).toEqual({ name: "Opt Out Areas", value: "Cat 1;Cat 4" });
   });
 
+  it("excludes optOuts that are not on the list of options from IMC", async () => {
+    mocks.post.mockReturnValueOnce(mockCategoriesResponse);
+    const res = await ds.transformOutOutsToCustomFields([
+      ...mockInput.optOuts,
+      "Bogus Cat"
+    ]);
+    expect(res).toEqual({ name: "Opt Out Areas", value: "Cat 1;Cat 4" });
+  });
+
   it("returns empty array when optOuts is null", async () => {
     const res = await ds.transformOutOutsToCustomFields();
     expect(res).toEqual([]);
