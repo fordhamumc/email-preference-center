@@ -1,6 +1,13 @@
 import ImcAPI from "..";
 import { Headers } from "apollo-server-env";
-import md5 from "md5";
+import {
+  mockMember,
+  mockFields,
+  mockInput,
+  mockMemberResponse,
+  mockCategoriesResponse,
+  mockCategories
+} from "./__mockdata";
 
 const MOCK_OPTIONS = {
   id: "ABC123",
@@ -60,9 +67,26 @@ describe("[ImcAPI.willSendRequest]", () => {
     headers: new Headers()
   };
 
+  const xmlRequest = {
+    method: "POST",
+    path: "XMLAPI",
+    params: new URLSearchParams(),
+    headers: new Headers()
+  };
+
   it("adds access token to request", async () => {
     const res = await ds.willSendRequest(request);
     expect(res.headers.get("Authorization")).toEqual("Bearer abcd1234");
+  });
+
+  it("does not add content type to non-XML request", async () => {
+    const res = await ds.willSendRequest(xmlRequest);
+    expect(res.headers.get("Content-Type")).toEqual("text/xml;charset=utf-8");
+  });
+
+  it("adds content type to XML request", async () => {
+    const res = await ds.willSendRequest(request);
+    expect(res.headers.get("Content-Type")).toEqual(null);
   });
 });
 
@@ -157,16 +181,15 @@ describe("[ImcAPI.patchMember]", () => {
 
   it("transforms opt outs", async () => {
     mocks.patch.mockReturnValueOnce(Promise.resolve({}));
-    mocks.get
-      .mockReturnValueOnce(mockMemberResponse)
-      .mockReturnValueOnce(mockMemberResponse);
+    mocks.post.mockReturnValueOnce(mockCategoriesResponse);
+    mocks.get.mockReturnValueOnce(mockMemberResponse);
+
     const res = await ds.patchMember(mockInput);
     expect(mocks.patch).toBeCalledWith(
       `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
       {
         customFields: [
-          { name: "Opt Out Cat 1", value: "Yes" },
-          { name: "Opt Out Cat 2", value: "No" },
+          { name: "Opt Out Areas", value: "Cat 1;Cat 4" },
           { name: "Preference Form Modified", value: expect.any(String) }
         ]
       }
@@ -179,9 +202,11 @@ describe("[ImcAPI.patchMember]", () => {
       .mockReturnValueOnce(Promise.resolve({}));
     mocks.get
       .mockReturnValueOnce(mockMemberResponse)
-      .mockReturnValueOnce(mockMemberResponse)
-      .mockReturnValueOnce(mockMemberResponse)
       .mockReturnValueOnce(mockMemberResponse);
+    mocks.post
+      .mockReturnValueOnce(mockCategoriesResponse)
+      .mockReturnValueOnce(mockCategoriesResponse);
+
     const input = { ...mockInput };
     input.gdpr = true;
     await ds.patchMember(input);
@@ -189,8 +214,7 @@ describe("[ImcAPI.patchMember]", () => {
       `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
       {
         customFields: [
-          { name: "Opt Out Cat 1", value: "Yes" },
-          { name: "Opt Out Cat 2", value: "No" },
+          { name: "Opt Out Areas", value: "Cat 1;Cat 4" },
           { name: "Preference Form Modified", value: expect.any(String) },
           { name: "GDPR Email Consent", value: expect.any(String) }
         ]
@@ -203,31 +227,19 @@ describe("[ImcAPI.patchMember]", () => {
       `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
       {
         customFields: [
-          { name: "Opt Out Cat 1", value: "Yes" },
-          { name: "Opt Out Cat 2", value: "No" },
+          { name: "Opt Out Areas", value: "Cat 1;Cat 4" },
           { name: "Preference Form Modified", value: expect.any(String) },
           { name: "GDPR Email Consent", value: "" }
         ]
       }
     );
   });
-
-  it("transforms member", async () => {
-    mocks.patch.mockReturnValueOnce(Promise.resolve({}));
-    mocks.get
-      .mockReturnValueOnce(mockMemberResponse)
-      .mockReturnValueOnce(mockMemberResponse);
-    const res = await ds.patchMember(mockInput);
-    expect(res).toEqual(mockMember);
-  });
 });
 
 describe("[ImcAPI.unsubscribeMember]", () => {
   it("calls patch with status unsubscribed", async () => {
     mocks.patch.mockReturnValueOnce(Promise.resolve({}));
-    mocks.get
-      .mockReturnValueOnce(mockMemberResponse)
-      .mockReturnValueOnce(mockMemberResponse);
+    mocks.get.mockReturnValueOnce(mockMemberResponse);
     const res = await ds.unsubscribeMember({ recipientId: "12345" });
     expect(mocks.patch).toBeCalledWith(
       `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`,
@@ -243,111 +255,31 @@ describe("[ImcAPI.unsubscribeMember]", () => {
 
 describe("[ImcAPI.getOptOutCategories]", () => {
   it("formats opt out categories", async () => {
-    mocks.get.mockReturnValueOnce(mockMemberResponse);
-    const res = await ds.getOptOutCategories("12345");
-    expect(mocks.get).toBeCalledWith(
-      `rest/databases/${MOCK_OPTIONS.databaseId}/contacts/12345`
+    mocks.post.mockReturnValueOnce(mockCategoriesResponse);
+    const res = await ds.getOptOutCategories();
+    expect(mocks.post).toBeCalledWith(
+      "XMLAPI",
+      `<?xml version="1.0" encoding="UTF-8"?><Envelope><Body><GetListMetaData><LIST_ID>${MOCK_OPTIONS.databaseId}</LIST_ID></GetListMetaData></Body></Envelope>`
     );
-    expect(res).toEqual(Object.keys(mockFields.optOuts));
+    expect(res).toEqual(mockCategories);
   });
 });
 
 describe("[ImcAPI.transformOutOutsToCustomFields]", () => {
   it("transforms optOuts input to imc custom fields", async () => {
-    mocks.get.mockReturnValueOnce(mockMemberResponse);
-    const res = await ds.transformOutOutsToCustomFields(mockInput);
-    expect(res).toEqual([
-      { name: "Opt Out Cat 1", value: "Yes" },
-      { name: "Opt Out Cat 2", value: "No" }
-    ]);
+    mocks.post.mockReturnValueOnce(mockCategoriesResponse);
+    const res = await ds.transformOutOutsToCustomFields(mockInput.optOuts);
+    expect(res).toEqual({ name: "Opt Out Areas", value: "Cat 1;Cat 4" });
   });
 
   it("returns empty array when optOuts is null", async () => {
-    mocks.get.mockReturnValueOnce(mockMemberResponse);
-    const res = await ds.transformOutOutsToCustomFields({
-      recipientId: "12345"
-    });
+    const res = await ds.transformOutOutsToCustomFields();
     expect(res).toEqual([]);
   });
+
+  it("returns empty value when optOuts is empty array", async () => {
+    mocks.post.mockReturnValueOnce(mockCategoriesResponse);
+    const res = await ds.transformOutOutsToCustomFields([]);
+    expect(res).toEqual({ name: "Opt Out Areas", value: "" });
+  });
 });
-
-/**
- * MOCK MEMBER DATA
- */
-
-// Transformed member data
-const mockMember = {
-  id: md5("test@test.com"),
-  email: "test@test.com",
-  emailType: "html",
-  status: "subscribed",
-  firstName: "Ftest",
-  lastName: "Ltest",
-  fidn: "A000000",
-  current: false,
-  exclusions: [],
-  optOuts: ["Cat 1", "Cat 3"],
-  recipientId: "12345",
-  gdpr: "475995600000",
-  __emailUpdatable: false
-};
-
-const mockFields = {
-  "First Name": "Ftest",
-  "Fordham ID": "A000000",
-  "Fordham Opt Out": "None",
-  "GDPR Email Consent": "01/31/1985 00:00:00",
-  "Last Clicked": "09/28/2016",
-  "Last Name": "Ltest",
-  "Last Opened": "09/28/2016",
-  "Last Sent": "09/28/2016",
-  optOuts: {
-    "Cat 1": "Yes",
-    "Cat 2": "",
-    "Cat 3": "Yes",
-    "Cat 4": "No"
-  },
-  Role: "ROLE1, ROLE2"
-};
-
-// Input
-const mockInput = {
-  recipientId: "12345",
-  optOuts: [{ name: "Cat 1", optOut: true }, { name: "Cat 2", optOut: false }]
-};
-
-// Raw response from API
-const mockMemberResponse = {
-  data: {
-    id: "12345",
-    syncId: "ABCD-123",
-    crmContactType: "CONTACT",
-    crmAccountId: null,
-    crmSyncEnabled: true,
-    lastModifiedDate: "2019-08-05T14:18:33.000+00:00",
-    email: "test@test.com",
-    emailType: "HTML",
-    createdFrom: "API",
-    optedOutDate: null,
-    optInDetails:
-      "Added via CRM sync InsertUpdateRecipients API. IP Address: 54.214.32.235",
-    optOutDetails: "",
-    leadSource: null,
-    customFields: [
-      { name: "First Name", value: "Ftest" },
-      { name: "Fordham ID", value: "A000000" },
-      { name: "Fordham Opt Out", value: "None" },
-      { name: "Last Clicked", value: "09/28/2016" },
-      { name: "Last Name", value: "Ltest" },
-      { name: "Last Opened", value: "09/28/2016" },
-      { name: "Last Sent", value: "09/28/2016" },
-      { name: "Opt Out Cat 1", value: "Yes" },
-      { name: "Opt Out Cat 2", value: "" },
-      { name: "Opt Out Cat 3", value: "Yes" },
-      { name: "Opt Out Cat 4", value: "No" },
-      { name: "Role", value: "ROLE1, ROLE2" },
-      { name: "GDPR Email Consent", value: "01/31/1985 00:00:00" }
-    ],
-    optInDate: "2016-06-10T14:06:15.000+00:00"
-  }
-};

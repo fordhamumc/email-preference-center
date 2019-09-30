@@ -34,14 +34,17 @@ export default class MailchimpAPI extends RESTDataSource {
     return request;
   }
 
+  /* istanbul ignore next */
   async queuedFetch(method, path, body, init) {
     return Queue.add(() => super[method](path, body, init));
   }
 
+  /* istanbul ignore next */
   async get(path, params, init) {
     return this.queuedFetch("get", path, params, init);
   }
 
+  /* istanbul ignore next */
   async patch(path, body, init) {
     return this.queuedFetch("patch", path, body, init);
   }

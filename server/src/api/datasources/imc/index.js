@@ -1,8 +1,9 @@
 import { RESTDataSource } from "apollo-datasource-rest";
 import querystring from "querystring";
 import to from "../../../utils/to";
-import memberReducer, { memberFieldsReducer } from "./imc.member.reducer";
+import memberReducer from "./imc.member.reducer";
 import NodeCache from "node-cache";
+import { parseStringPromise } from "xml2js";
 
 export default class ImcAPI extends RESTDataSource {
   constructor({
@@ -41,6 +42,9 @@ export default class ImcAPI extends RESTDataSource {
     if (request.path !== "oauth/token") {
       const accessToken = await this.getOAuthAccessToken();
       request.headers.set("Authorization", `Bearer ${accessToken}`);
+    }
+    if (request.path.startsWith("XMLAPI")) {
+      request.headers.set("Content-Type", "text/xml;charset=utf-8");
     }
     return request;
   }
@@ -101,14 +105,11 @@ export default class ImcAPI extends RESTDataSource {
         value: ["unsubscribed", "cleaned"].includes(status) ? "Yes" : "None"
       });
     }
+
     if (optOuts) {
       payload.customFields = [
         ...payload.customFields,
-        ...(await this.transformOutOutsToCustomFields({
-          recipientId: id,
-          optOuts,
-          databaseId
-        }))
+        await this.transformOutOutsToCustomFields(optOuts)
       ];
     }
     payload.customFields = [
@@ -140,24 +141,30 @@ export default class ImcAPI extends RESTDataSource {
     );
   }
 
-  async getOptOutCategories(id, databaseId = this.DATABASE_ID) {
-    const member = await this.get(
-      `rest/databases/${databaseId}/contacts/${id}`
+  async getOptOutCategories(databaseId = this.DATABASE_ID) {
+    const meta = await this.post(
+      "XMLAPI",
+      `<?xml version="1.0" encoding="UTF-8"?><Envelope><Body><GetListMetaData><LIST_ID>${databaseId}</LIST_ID></GetListMetaData></Body></Envelope>`
     );
-    return Object.keys(memberFieldsReducer(member.data).optOuts);
+    const result = await parseStringPromise(meta, {
+      normalizeTags: true,
+      explicitArray: false
+    });
+    return result.envelope.body.result.columns.column.filter(
+      column => column.name === "Opt Out Areas"
+    )[0].selection_values.value;
   }
 
-  async transformOutOutsToCustomFields({
-    recipientId: id,
-    optOuts = [],
-    databaseId
-  }) {
-    const optOutCategories = await this.getOptOutCategories(id, databaseId);
-    return optOuts
-      .filter(({ name }) => optOutCategories.includes(name))
-      .map(optOut => ({
-        name: `Opt Out ${optOut.name}`,
-        value: optOut.optOut ? "Yes" : "No"
-      }));
+  async transformOutOutsToCustomFields(optOuts) {
+    if (!Array.isArray(optOuts)) return [];
+    const optOutCategories = await this.getOptOutCategories();
+    return {
+      name: "Opt Out Areas",
+      value: optOuts
+        .filter(({ optOut }) => optOut)
+        .map(optOut => optOut.name)
+        .filter(optOut => optOutCategories.includes(optOut))
+        .join(";")
+    };
   }
 }
