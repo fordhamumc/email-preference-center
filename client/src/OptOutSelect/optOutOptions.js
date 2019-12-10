@@ -23,7 +23,7 @@ const optOutOptions = {
   "Graduate School of Education": {},
   "Graduate School of Social Service": {},
   "Human Resources": {},
-  IT: {},
+  "Fordham IT": {},
   Orthodoxy: {},
   Parents: {},
   President: {},
